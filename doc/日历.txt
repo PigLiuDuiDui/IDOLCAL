@@ -1,0 +1,50 @@
+使用 FullCalendar Vue 3 作为日历功能基础。
+
+不要使用 FullCalendar 默认视觉。
+
+只使用 FullCalendar Standard 功能，不使用 Premium 功能。
+
+重新设计所有视觉样式。
+
+日历采用现代 Editorial Calendar 风格。
+
+默认显示月视图。
+
+顶部：
+
+September 2026
+
+[<] [Today] [>]
+
+右侧提供：
+
+Month
+List
+
+移动端默认优先使用 List / Agenda 风格，
+桌面端使用 Month Grid。
+
+日期数字要轻量，不要粗体。
+
+今天使用非常克制的高亮。
+
+有活动的日期使用小型视觉标记，而不是巨大的色块。
+
+不同活动类型使用不同的微型标记：
+
+Release
+Event
+TV
+Live
+Photo
+Magazine
+Offline
+Brand
+Birthday
+
+不要让一个日期塞满大量彩色标签。
+
+一个日期最多展示 2～3 条事件。
+超过部分显示：
+
++3 more

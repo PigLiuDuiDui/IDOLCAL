@@ -1,0 +1,25 @@
+提供活动筛选。
+
+分类：
+
+ALL
+RELEASE
+EVENT
+TV
+LIVE
+PHOTO
+MAGAZINE
+OFFLINE
+BRAND
+BIRTHDAY
+
+选择分类以后：
+日历只显示对应类型。
+
+支持多个分类同时选择。
+
+筛选器不要做成传统后台 Select。
+
+使用轻量的 Segmented Filter / Pill Filter。
+
+移动端可以横向滚动。

@@ -1,0 +1,32 @@
+每个活动必须具有 Official Source。
+
+详情页底部设计：
+
+OFFICIAL SOURCE
+
+EVAN Weverse
+Published Aug 18, 2026
+
+[View Original]
+
+来源区域要非常克制。
+
+不要做成普通网页链接。
+
+可以使用：
+
+Official
+Verified Source
+
+等轻量视觉标记。
+
+明确区分：
+
+Official
+Fan Project
+Media
+Brand
+
+其中 Official 使用最高优先级。
+
+不要把非官方内容伪装成官方信息。

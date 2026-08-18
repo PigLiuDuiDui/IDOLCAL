@@ -1,0 +1,24 @@
+{
+  "name": "idolcal",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "IdolCal 追星日历 - 管理偶像与重要日程的日历应用",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@fullcalendar/vue3": "^7.0.2",
+    "pinia": "^2.1.7",
+    "temporal-polyfill": "^1.0.4",
+    "vue": "^3.4.21",
+    "vue-i18n": "^9.14.4",
+    "vue-router": "^4.3.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.4",
+    "vite": "^5.2.8"
+  }
+}

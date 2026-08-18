@@ -1,0 +1,30 @@
+除了 Calendar View 之外，增加 Timeline / Schedule View。
+
+Timeline 用于快速浏览整个时期。
+
+例如：
+
+AUGUST
+│
+├── 08.18
+│   Official Announcement
+│
+├── 08.20
+│   Concept Photo
+│
+└── 08.25
+    Tracklist
+
+SEPTEMBER
+│
+├── 09.07
+│   Album Release
+│
+├── 09.07
+│   Debut Showcase
+│
+└── ...
+
+Timeline 要具有 Archive 感。
+
+不要做成企业项目管理 Timeline。

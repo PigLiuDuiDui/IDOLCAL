@@ -1,0 +1,34 @@
+在日历旁边增加 UPCOMING 区域。
+
+显示未来 5～7 个活动。
+
+设计成纵向时间线：
+
+UPCOMING
+
+09.07
+DEATH OF ME
+18:00 KST
+
+09.07
+SOLO DEBUT SHOWCASE
+19:00 KST
+Seoul
+
+09.xx
+Music Show
+...
+
+每个事件显示：
+日期
+类型
+标题
+时间
+地点
+
+距离最近的活动使用视觉强调。
+
+例如：
+
+NEXT
+D-19

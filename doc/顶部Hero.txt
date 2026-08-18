@@ -1,0 +1,32 @@
+Hero 区域不要直接做成传统网站 Header。
+
+顶部以 EVAN 的名字和当前活动状态作为视觉核心。
+
+内容包括：
+
+EVAN
+OFFICIAL SCHEDULE
+
+2026
+
+CURRENT ERA
+DEATH OF ME
+
+距离下一个重要活动显示倒计时。
+
+例如：
+
+NEXT EVENT
+SOLO DEBUT SHOWCASE
+
+09.07
+19:00 KST
+
+D-19
+
+Hero 背景可以使用艺人官方视觉图片，但需要保证文字清晰。
+图片采用大面积留白和渐变遮罩，不要把整个页面做成图片墙。
+
+Hero 高度控制在 420～600px。
+
+移动端 Hero 自动缩小，不允许出现文字覆盖脸部或重要主体。

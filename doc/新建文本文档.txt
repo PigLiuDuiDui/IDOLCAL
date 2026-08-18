@@ -1,0 +1,188 @@
+Mobile First。
+
+手机端不是简单把 PC 页面压缩。
+
+必须重新设计移动端布局。
+
+手机端：
+
+Hero
+↓
+Next Event
+↓
+Upcoming
+↓
+Calendar / List
+↓
+Event Detail
+↓
+Official Source
+
+月历如果空间不足，可以自动切换为：
+
+Agenda / List View。
+
+每个事件至少保证：
+标题完整可读
+时间完整可读
+地点完整可读
+按钮容易点击
+
+点击区域至少 44px。
+
+不要出现横向滚动。
+
+底部可以增加轻量导航：
+
+Schedule
+Timeline
+Archive
+About
+
+
+PC 端最大内容宽度控制在 1200～1440px。
+
+不要让日历无限拉伸。
+
+可以采用：
+
+左侧：
+Calendar
+
+右侧：
+Upcoming Events
+
+或者：
+
+上方：
+Hero
+
+中间：
+Calendar
+
+下方：
+Timeline / Archive
+
+整体留白充足。
+
+不要让页面看起来像后台系统。
+
+
+颜色体系不要过度鲜艳。
+
+基础：
+Off-white / Deep Black / Soft Gray
+
+辅助：
+根据 EVAN 当前官方视觉加入非常克制的主题色。
+
+整体色彩比例：
+
+80% 中性颜色
+15% 次级灰阶
+5% 强调色
+
+强调色只用于：
+重要活动
+当前状态
+Countdown
+Active Filter
+
+禁止：
+彩虹渐变
+大面积紫粉渐变
+高饱和蓝紫
+荧光色
+
+动画必须克制。
+
+允许：
+- 页面淡入
+- 卡片 hover
+- 日期切换
+- Drawer 滑入
+- 图片轻微缩放
+- Countdown 数字变化
+
+禁止：
+- 大量粒子
+- 满屏漂浮爱心
+- 夸张 3D
+- 无限旋转
+- 自动播放复杂动画
+- 影响阅读的背景动画
+
+动画目标：
+高级、顺滑、电影感。
+
+而不是“炫技”。
+
+不要把活动数据硬编码到组件中。
+
+建立独立的数据结构：
+
+{
+  id,
+  date,
+  endDate,
+  time,
+  timezone,
+  title,
+  type,
+  status,
+  location,
+  description,
+  image,
+  sourceName,
+  sourceUrl,
+  isOfficial,
+  onlineUrl,
+  mapUrl
+}
+
+页面组件只负责渲染。
+
+数据独立。
+
+未来需要更换艺人时，只需要替换数据文件，不需要修改页面结构。
+
+为未来支持：
+
+EVAN
+HEESEUNG
+ENHYPEN
+其他艺人
+
+预留 artist 字段。
+
+
+最终目标不是“做一个日历组件”。
+
+最终产品应该让用户感觉：
+
+这是一个属于 EVAN 的官方活动档案网站。
+
+日历只是核心入口之一。
+
+视觉体验应该接近：
+
+高级音乐网站
+艺人官方 Archive
+时尚杂志
+现代艺术展览网站
+
+而不是：
+
+Google Calendar
+Outlook Calendar
+企业后台
+项目管理工具
+CRM
+管理系统
+
+所有功能都围绕：
+
+“让粉丝快速知道 EVAN 什么时候、在哪里、参加什么活动，以及官方信息来源是什么。”
+
+设计必须优先考虑内容和视觉，而不是堆功能。
+

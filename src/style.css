@@ -1,0 +1,357 @@
+/* ============================================================
+   IdolCal — EVAN OFFICIAL SCHEDULE
+   视觉体系：高级 / 克制 / 现代 / 杂志 Archive 感
+   色彩比例：80% 中性色 + 15% 灰阶 + 5% 强调色
+   ============================================================ */
+
+:root {
+  /* 中性色基础 */
+  --bg: #faf9f7;            /* off-white 页面底色 */
+  --bg-deep: #131313;       /* deep black 深色区 */
+  --surface: #ffffff;       /* 卡片表面 */
+  --surface-alt: #f3f2ef;   /* 次级表面 */
+
+  /* 文字灰阶 */
+  --ink: #191919;
+  --ink-soft: #57534e;
+  --ink-faint: #9b968e;
+  --ink-invert: #f5f4f1;
+
+  /* 线条 */
+  --line: #e7e4df;
+  --line-strong: #d6d2cb;
+
+  /* 强调色（仅用于：重要活动 / 当前状态 / Countdown / Active Filter） */
+  --accent: #a62f2f;
+  --accent-soft: #f4ece9;
+  --accent-ink: #8f2828;
+
+  /* 类型微型标记色（克制、低饱和） */
+  --t-release: #8a6d3b;
+  --t-event: #7a5c8f;
+  --t-tv: #3f6f8f;
+  --t-live: #3f7f6a;
+  --t-photo: #8f6f3f;
+  --t-magazine: #5c6b8f;
+  --t-offline: #6b5c4f;
+  --t-brand: #4f6b5c;
+  --t-birthday: #a62f2f;
+
+  /* 字体（含 CJK / 韩文字体回退） */
+  --serif: 'Georgia', 'Times New Roman', 'Noto Serif KR', 'Songti SC', 'STSong', 'SimSun', 'Apple SD Gothic Neo', serif;
+  --sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue',
+    'PingFang SC', 'Microsoft YaHei', 'Apple SD Gothic Neo', 'Malgun Gothic', 'Segoe UI', sans-serif;
+  --mono: 'SF Mono', 'Cascadia Code', Consolas, 'Courier New', monospace;
+
+  /* 尺寸 */
+  --maxw: 1320px;
+  --radius: 10px;
+  --radius-sm: 6px;
+
+  /* 动效 */
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --dur: 0.35s;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.65;
+  letter-spacing: 0.01em;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+::selection {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* 滚动条：克制 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: #cfcbc4;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ---------- 通用布局工具 ---------- */
+
+.container {
+  width: 100%;
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+.section {
+  padding: 72px 0;
+}
+
+/* 杂志式区块标题 */
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 36px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 18px;
+}
+
+.section-title {
+  font-family: var(--serif);
+  font-size: 26px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+.section-note {
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+}
+
+/* 区块眉标（小标） */
+.eyebrow {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+/* ---------- 通用按钮 ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px; /* 移动端点击区域 ≥ 44px */
+  padding: 0 22px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all var(--dur) var(--ease);
+  white-space: nowrap;
+}
+
+.btn:hover {
+  border-color: var(--ink);
+  transform: translateY(-1px);
+}
+
+.btn-primary {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.btn-accent {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.btn-accent:hover {
+  background: var(--accent-ink);
+  border-color: var(--accent-ink);
+}
+
+.btn-ghost {
+  border-color: transparent;
+  color: var(--ink-soft);
+}
+
+.btn-ghost:hover {
+  color: var(--ink);
+  background: var(--surface-alt);
+  border-color: transparent;
+}
+
+/* 轻量文本链接 */
+.link-quiet {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid var(--line-strong);
+  transition: border-color var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+
+.link-quiet:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ---------- 类型标记 ---------- */
+
+.type-marker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.type-marker::before {
+  content: attr(data-marker);
+  font-size: 8px;
+  line-height: 1;
+}
+
+.type-marker[data-type='RELEASE'] { color: var(--t-release); }
+.type-marker[data-type='EVENT'] { color: var(--t-event); }
+.type-marker[data-type='TV'] { color: var(--t-tv); }
+.type-marker[data-type='LIVE'] { color: var(--t-live); }
+.type-marker[data-type='PHOTO'] { color: var(--t-photo); }
+.type-marker[data-type='MAGAZINE'] { color: var(--t-magazine); }
+.type-marker[data-type='OFFLINE'] { color: var(--t-offline); }
+.type-marker[data-type='BRAND'] { color: var(--t-brand); }
+.type-marker[data-type='BIRTHDAY'] { color: var(--t-birthday); }
+
+/* 状态标记 */
+.status-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  padding: 4px 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+.status-tag::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.status-tag[data-status='CONFIRMED'] {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 35%, transparent);
+  background: var(--accent-soft);
+}
+
+.status-tag[data-status='TBA'] {
+  color: var(--ink-soft);
+}
+
+.status-tag[data-status='RUMORED'] {
+  color: var(--ink-faint);
+  border-style: dashed;
+}
+
+/* 来源可信度标记 */
+.source-level {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.source-level[data-level='OFFICIAL'] {
+  color: var(--accent);
+}
+
+.source-level[data-level='OFFICIAL']::before {
+  content: '✓';
+}
+
+/* ---------- 页面切换动画 ---------- */
+
+.page-enter-active,
+.page-leave-active {
+  transition: opacity var(--dur) var(--ease);
+}
+
+.page-enter-from,
+.page-leave-to {
+  opacity: 0;
+}
+
+/* ---------- 响应式 ---------- */
+
+@media (max-width: 900px) {
+  .container {
+    padding: 0 20px;
+  }
+
+  .section {
+    padding: 48px 0;
+  }
+
+  .section-title {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: 0 16px;
+  }
+
+  .section {
+    padding: 40px 0;
+  }
+
+  .section-head {
+    margin-bottom: 24px;
+  }
+}
+
+/* 减少动画偏好 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
