@@ -40,25 +40,35 @@
         </button>
 
         <p class="hero-next-hint">{{ t('hero.clickForDetails') }}</p>
+
+        <button class="hero-subscribe" type="button" @click="subscribeOpen = true">
+          {{ t('subscribe.button') }}
+        </button>
       </div>
     </div>
   </section>
+
+  <SubscribePanel :open="subscribeOpen" @close="subscribeOpen = false" />
 </template>
 
 <script setup>
 // Hero：艺人身份 + 当前时期 + 下一活动倒计时
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { currentArtist } from '../data/artists'
 import { eventsSorted, TYPE_MARKER } from '../data/events'
 import { useUiStore } from '../stores/ui'
 import { shortDate, countdownLabel, todayKey } from '../utils/date'
 import { useText } from '../i18n'
+import SubscribePanel from './SubscribePanel.vue'
 
 const { t } = useI18n()
 const text = useText()
 const artist = currentArtist
 const ui = useUiStore()
+
+// 日历订阅弹窗开关
+const subscribeOpen = ref(false)
 
 // 下一个未来活动（含今天）
 const nextEvent = computed(() => {
@@ -256,6 +266,30 @@ const nextEvent = computed(() => {
   letter-spacing: 0.18em;
   color: rgba(255, 255, 255, 0.32);
   text-align: center;
+}
+
+/* 订阅日历按钮（Hero 下方，描边样式） */
+.hero-subscribe {
+  display: block;
+  width: 100%;
+  margin-top: 18px;
+  padding: 12px 18px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  color: rgba(255, 255, 255, 0.85);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: border-color var(--dur) var(--ease), color var(--dur) var(--ease),
+    background var(--dur) var(--ease);
+}
+
+.hero-subscribe:hover {
+  border-color: var(--accent-soft);
+  color: #fff;
+  background: rgba(166, 47, 47, 0.18);
 }
 
 /* 移动端：Hero 缩小，纵向排列 */

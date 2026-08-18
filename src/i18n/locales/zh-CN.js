@@ -25,6 +25,21 @@ export default {
     nextEvent: '下一活动',
     clickForDetails: '点击查看详情'
   },
+  subscribe: {
+    button: '订阅日历',
+    eyebrow: '日历订阅',
+    title: '订阅到手机日历',
+    desc: '把 {artist} 的日程同步到您的手机日历，活动更新自动刷新，到点由手机系统提醒。',
+    copy: '复制链接',
+    copied: '已复制',
+    copyFail: '复制失败，长按链接复制',
+    download: '下载 .ics 文件',
+    stepIos: 'iPhone：复制链接 → 设置 → 日历 → 添加订阅日历',
+    stepAndroid: '安卓：复制链接 → 打开日历 App → 添加订阅（各机型入口略有不同）',
+    localHint: '当前为本地预览模式，链接仅本机可用；部署上线后自动变为正式订阅链接。',
+    deployHint: '把上面的订阅链接发给粉丝，添加一次即可永久自动同步。',
+    close: '关闭'
+  },
   calendar: {
     prevMonth: '上一月',
     nextMonth: '下一月',

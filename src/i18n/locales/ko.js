@@ -25,6 +25,21 @@ export default {
     nextEvent: '다음 일정',
     clickForDetails: '자세히 보기'
   },
+  subscribe: {
+    button: '일정 구독',
+    eyebrow: '달력 구독',
+    title: '휴대폰 달력에 구독',
+    desc: '{artist}의 일정을 휴대폰 달력에 동기화하세요. 일정이 업데이트되면 자동으로 새로고침되고, 시간이 되면 휴대폰이 알려줍니다.',
+    copy: '링크 복사',
+    copied: '복사됨',
+    copyFail: '복사 실패 — 링크를 길게 눌러 복사',
+    download: '.ics 파일 다운로드',
+    stepIos: 'iPhone: 링크 복사 → 설정 → 캘린더 → 구독 캘린더 추가',
+    stepAndroid: 'Android: 링크 복사 → 달력 앱 → 구독 추가 (기기별로 경로 상이)',
+    localHint: '현재 로컬 미리보기 모드입니다. 배포 후 정식 구독 링크가 활성화됩니다.',
+    deployHint: '구독 링크를 팬들과 공유하세요. 한 번 추가하면 자동으로 계속 동기화됩니다.',
+    close: '닫기'
+  },
   calendar: {
     prevMonth: '이전 달',
     nextMonth: '다음 달',

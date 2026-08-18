@@ -6,7 +6,7 @@
   "description": "IdolCal 追星日历 - 管理偶像与重要日程的日历应用",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "node scripts/gen-ics.js && vite build",
     "preview": "vite preview"
   },
   "dependencies": {

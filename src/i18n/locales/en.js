@@ -25,6 +25,21 @@ export default {
     nextEvent: 'Next Event',
     clickForDetails: 'Click for details'
   },
+  subscribe: {
+    button: 'Subscribe Calendar',
+    eyebrow: 'CALENDAR SUBSCRIPTION',
+    title: 'Subscribe on your phone',
+    desc: 'Sync {artist}\u2019s schedule to your phone calendar. Updates refresh automatically, and your phone reminds you in time.',
+    copy: 'Copy link',
+    copied: 'Copied',
+    copyFail: 'Failed — long-press the link',
+    download: 'Download .ics',
+    stepIos: 'iPhone: copy the link → Settings → Calendar → Subscribed Calendars',
+    stepAndroid: 'Android: copy the link → open your calendar app → add subscription (entry varies by device)',
+    localHint: 'Local preview mode: the link only works on this device until the site is deployed.',
+    deployHint: 'Share the link with fans — subscribe once, synced forever.',
+    close: 'Close'
+  },
   calendar: {
     prevMonth: 'Previous month',
     nextMonth: 'Next month',

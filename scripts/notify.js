@@ -65,8 +65,9 @@ function dateKeyIn(timeZone, offsetDays = 0) {
 const today = dateKeyIn('Asia/Seoul')
 const tomorrow = dateKeyIn('Asia/Seoul', 1)
 
-/** 多语言字段取中文，缺失回退英文 */
+/** 多语言对象取中文回退英文；纯字符串原样返回（如 sourceName） */
 function t(field, fallback = '') {
+  if (typeof field === 'string') return field
   const v = field && (field['zh-CN'] || field.en)
   return v || fallback
 }
