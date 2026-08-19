@@ -7,7 +7,8 @@
   "scripts": {
     "dev": "vite",
     "build": "node scripts/gen-ics.js && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "export:seed": "node scripts/export-seed.mjs"
   },
   "dependencies": {
     "@fullcalendar/vue3": "^7.0.2",

@@ -8,6 +8,8 @@ export default {
   nav: {
     label: '주요 내비게이션',
     schedule: '일정',
+    comeback: '컴백',
+    reminders: '알림',
     timeline: '타임라인',
     archive: '아카이브',
     about: '소개'
@@ -49,6 +51,76 @@ export default {
     list: '목록',
     more: '＋{n}개 더보기',
     empty: '선택한 유형에 일정이 없습니다.'
+  },
+  home: {
+    switchView: '보기 전환',
+    today: '오늘',
+    thisWeek: '이번 주',
+    calendar: '달력',
+    todayLabel: '오늘',
+    thisWeekLabel: '이번 주',
+    todayTag: '오늘',
+    todayEmpty: '오늘 일정이 없습니다. 잠시 휴식 \u2014 또는 이번 주 일정을 확인해 보세요.',
+    weekEmpty: '향후 7일간 예정된 일정이 없습니다.',
+    allDay: '종일'
+  },
+  reminder: {
+    setBtn: '알림 받기',
+    setBtnDone: '알림 설정됨',
+    title: '알림 설정',
+    eyebrow: '일정 알림',
+    at: '에',
+    confirm: '알림 설정',
+    update: '알림 수정',
+    cancel: '알림 취소',
+    setAt: '알림 설정됨: {at}',
+    noTime: '아직 시작 시간이 확정되지 않은 일정입니다.',
+    options: {
+      '1d': '하루 전',
+      '3h': '3시간 전',
+      '1h': '1시간 전',
+      '30m': '30분 전',
+      start: '시작 시간에'
+    }
+  },
+  reminders: {
+    eyebrow: '내 알림',
+    sub: '설정한 모든 일정 알림을 한곳에서 확인하세요. 알림은 브라우저에 로컬 저장되며, 시스템 알림은 PWA 업데이트에서 제공됩니다.',
+    alertAt: '알림 시각',
+    cancel: '취소',
+    emptyTitle: '아직 알림이 없습니다',
+    emptyDesc: '일정을 열고 \u201c알림 받기\u201d를 눌러 시작 전에 알림을 받아 보세요.',
+    browse: '일정 보기',
+    note: '알림은 공식 시간대 기준으로 계산되며 사용자 시간대로 변환되어 표시됩니다.'
+  },
+  timezone: {
+    select: '시간대 선택',
+    eyebrow: '시간대',
+    auto: '자동',
+    autoHint: '기기 시간대 따르기',
+    official: '공식 시간',
+    yourTime: '내 시간',
+    close: '닫기'
+  },
+  comeback: {
+    eyebrow: '컴백',
+    releaseDate: '발매일',
+    timeline: '컴백 타임라인',
+    timelineNote: '전체 일정',
+    statuses: {
+      COMPLETED: '완료',
+      UPCOMING: '예정',
+      TODAY: '오늘'
+    },
+    stages: {
+      'concept-photo': '컨셉 포토',
+      tracklist: '트랙리스트',
+      'highlight-medley': '하이라이트 메들리',
+      'mv-teaser': 'MV 티저',
+      'album-release': '앨범 발매',
+      showcase: '쇼케이스',
+      'music-shows': '음악방송'
+    }
   },
   upcoming: {
     title: '다가오는 일정',

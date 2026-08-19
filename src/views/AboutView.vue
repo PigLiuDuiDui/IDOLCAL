@@ -78,13 +78,15 @@
 
 <script setup>
 // About：档案站说明 + 来源可信度政策
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { currentArtist } from '../data/artists'
+import { useDataStore } from '../stores/data'
 import { useText } from '../i18n'
 
 const { t } = useI18n()
 const text = useText()
-const artist = currentArtist
+const data = useDataStore()
+const artist = computed(() => data.currentArtist)
 </script>
 
 <style scoped>

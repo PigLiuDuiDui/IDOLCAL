@@ -1,0 +1,126 @@
+{
+  "eventTypes": [
+    {
+      "id": "RELEASE",
+      "label": {
+        "en": "RELEASE",
+        "zh-CN": "回归",
+        "ko": "컴백"
+      },
+      "marker": "●"
+    },
+    {
+      "id": "EVENT",
+      "label": {
+        "en": "EVENT",
+        "zh-CN": "活动",
+        "ko": "이벤트"
+      },
+      "marker": "◆"
+    },
+    {
+      "id": "TV",
+      "label": {
+        "en": "TV",
+        "zh-CN": "综艺",
+        "ko": "예능"
+      },
+      "marker": "▲"
+    },
+    {
+      "id": "LIVE",
+      "label": {
+        "en": "LIVE",
+        "zh-CN": "直播",
+        "ko": "라이브"
+      },
+      "marker": "▶"
+    },
+    {
+      "id": "PHOTO",
+      "label": {
+        "en": "PHOTO",
+        "zh-CN": "写真",
+        "ko": "화보"
+      },
+      "marker": "✳"
+    },
+    {
+      "id": "MAGAZINE",
+      "label": {
+        "en": "MAGAZINE",
+        "zh-CN": "杂志",
+        "ko": "매거진"
+      },
+      "marker": "■"
+    },
+    {
+      "id": "OFFLINE",
+      "label": {
+        "en": "OFFLINE",
+        "zh-CN": "线下",
+        "ko": "오프라인"
+      },
+      "marker": "＋"
+    },
+    {
+      "id": "BRAND",
+      "label": {
+        "en": "BRAND",
+        "zh-CN": "品牌",
+        "ko": "브랜드"
+      },
+      "marker": "◈"
+    },
+    {
+      "id": "BIRTHDAY",
+      "label": {
+        "en": "BIRTHDAY",
+        "zh-CN": "生日",
+        "ko": "생일"
+      },
+      "marker": "☆"
+    }
+  ],
+  "statuses": {
+    "CONFIRMED": "CONFIRMED",
+    "TBA": "TBA",
+    "RUMORED": "RUMORED"
+  },
+  "sourceLevels": {
+    "OFFICIAL": "OFFICIAL",
+    "BRAND": "BRAND",
+    "MEDIA": "MEDIA",
+    "FAN": "FAN PROJECT"
+  },
+  "comebackStages": [
+    {
+      "id": "concept-photo",
+      "key": "conceptPhoto"
+    },
+    {
+      "id": "tracklist",
+      "key": "tracklist"
+    },
+    {
+      "id": "highlight-medley",
+      "key": "highlightMedley"
+    },
+    {
+      "id": "mv-teaser",
+      "key": "mvTeaser"
+    },
+    {
+      "id": "album-release",
+      "key": "albumRelease"
+    },
+    {
+      "id": "showcase",
+      "key": "showcase"
+    },
+    {
+      "id": "music-shows",
+      "key": "musicShows"
+    }
+  ]
+}

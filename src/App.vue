@@ -17,9 +17,16 @@
 
 <script setup>
 // 根组件：应用骨架 + 顶部导航 + 移动底部导航 + 全局活动详情面板
+import { onMounted } from 'vue'
 import SiteHeader from './components/SiteHeader.vue'
 import BottomNav from './components/BottomNav.vue'
 import EventDetailDrawer from './components/EventDetailDrawer.vue'
+import { useDataStore } from './stores/data'
+
+const data = useDataStore()
+
+// 启动时从后端拉取全量数据（失败自动回退本地快照，页面始终可用）
+onMounted(() => data.loadAll())
 </script>
 
 <style scoped>

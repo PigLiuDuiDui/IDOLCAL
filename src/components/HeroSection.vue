@@ -31,10 +31,10 @@
           <h2 class="next-title">{{ text(nextEvent.title) }}</h2>
 
           <div class="next-meta">
-            <span class="type-marker" :data-type="nextEvent.type" :data-marker="TYPE_MARKER[nextEvent.type]">
+            <span class="type-marker" :data-type="nextEvent.type" :data-marker="data.TYPE_MARKER[nextEvent.type]">
               {{ t(`types.${nextEvent.type}`) }}
             </span>
-            <span v-if="nextEvent.time" class="next-time">{{ nextEvent.time }} {{ nextEvent.timezone }}</span>
+            <span v-if="nextEvent.time" class="next-time"><EventTime :event="nextEvent" inline invert /></span>
             <span v-if="nextEvent.location" class="next-loc">{{ text(nextEvent.location) }}</span>
           </div>
         </button>
@@ -55,16 +55,17 @@
 // Hero：艺人身份 + 当前时期 + 下一活动倒计时
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { currentArtist } from '../data/artists'
-import { eventsSorted, TYPE_MARKER } from '../data/events'
+import { useDataStore } from '../stores/data'
 import { useUiStore } from '../stores/ui'
 import { shortDate, countdownLabel, todayKey } from '../utils/date'
 import { useText } from '../i18n'
 import SubscribePanel from './SubscribePanel.vue'
+import EventTime from './EventTime.vue'
 
 const { t } = useI18n()
 const text = useText()
-const artist = currentArtist
+const data = useDataStore()
+const artist = computed(() => data.currentArtist)
 const ui = useUiStore()
 
 // 日历订阅弹窗开关
@@ -73,7 +74,7 @@ const subscribeOpen = ref(false)
 // 下一个未来活动（含今天）
 const nextEvent = computed(() => {
   const today = todayKey()
-  return eventsSorted.find((e) => e.date >= today) || null
+  return data.eventsSorted.find((e) => e.date >= today) || null
 })
 </script>
 

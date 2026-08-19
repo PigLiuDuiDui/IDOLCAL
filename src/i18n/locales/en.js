@@ -8,6 +8,8 @@ export default {
   nav: {
     label: 'Main navigation',
     schedule: 'Schedule',
+    comeback: 'Comeback',
+    reminders: 'Reminders',
     timeline: 'Timeline',
     archive: 'Archive',
     about: 'About'
@@ -49,6 +51,76 @@ export default {
     list: 'List',
     more: '+{n} more',
     empty: 'No events for the selected types.'
+  },
+  home: {
+    switchView: 'Switch view',
+    today: 'Today',
+    thisWeek: 'This Week',
+    calendar: 'Calendar',
+    todayLabel: 'TODAY',
+    thisWeekLabel: 'THIS WEEK',
+    todayTag: 'TODAY',
+    todayEmpty: 'No events today. Enjoy the calm \u2014 or check what\u2019s coming up this week.',
+    weekEmpty: 'Nothing scheduled in the next 7 days.',
+    allDay: 'ALL DAY'
+  },
+  reminder: {
+    setBtn: 'Remind me',
+    setBtnDone: 'Reminder set',
+    title: 'Remind me',
+    eyebrow: 'REMINDER',
+    at: 'at',
+    confirm: 'Set reminder',
+    update: 'Update',
+    cancel: 'Cancel reminder',
+    setAt: 'Reminder set for {at}',
+    noTime: 'This event has no confirmed start time yet.',
+    options: {
+      '1d': '1 day before',
+      '3h': '3 hours before',
+      '1h': '1 hour before',
+      '30m': '30 minutes before',
+      start: 'At start time'
+    }
+  },
+  reminders: {
+    eyebrow: 'My Reminders',
+    sub: 'All your event reminders in one place. They are stored locally in your browser \u2014 system-level notifications arrive with the upcoming PWA update.',
+    alertAt: 'Alert',
+    cancel: 'Remove',
+    emptyTitle: 'No reminders yet',
+    emptyDesc: 'Open any event and tap \u201cRemind me\u201d to get an alert before it starts.',
+    browse: 'Browse schedule',
+    note: 'Reminders are calculated from the official event timezone and shown in your local time.'
+  },
+  timezone: {
+    select: 'Select timezone',
+    eyebrow: 'TIME ZONE',
+    auto: 'Auto',
+    autoHint: 'Follow device timezone',
+    official: 'Official Time',
+    yourTime: 'Your time',
+    close: 'Close'
+  },
+  comeback: {
+    eyebrow: 'COMEBACK',
+    releaseDate: 'RELEASE DATE',
+    timeline: 'COMEBACK TIMELINE',
+    timelineNote: 'FULL SCHEDULE',
+    statuses: {
+      COMPLETED: 'COMPLETED',
+      UPCOMING: 'UPCOMING',
+      TODAY: 'TODAY'
+    },
+    stages: {
+      'concept-photo': 'Concept Photo',
+      tracklist: 'Tracklist',
+      'highlight-medley': 'Highlight Medley',
+      'mv-teaser': 'MV Teaser',
+      'album-release': 'Album Release',
+      showcase: 'Showcase',
+      'music-shows': 'Music Shows'
+    }
   },
   upcoming: {
     title: 'UPCOMING',

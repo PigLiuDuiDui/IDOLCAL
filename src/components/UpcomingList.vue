@@ -26,17 +26,18 @@
 // 未来 5～7 个活动的纵向时间线
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { eventsSorted } from '../data/events'
+import { useDataStore } from '../stores/data'
 import EventCard from './EventCard.vue'
 import { todayKey, countdownLabel } from '../utils/date'
 import { useUiStore } from '../stores/ui'
 
 const { t } = useI18n()
 const ui = useUiStore()
+const data = useDataStore()
 
 const list = computed(() => {
   const today = todayKey()
-  const upcoming = eventsSorted.filter((e) => e.date >= today)
+  const upcoming = data.eventsSorted.filter((e) => e.date >= today)
 
   // 应用类型筛选（未筛选时显示全部）
   const filtered =

@@ -14,7 +14,7 @@
       >
         <header class="panel-head">
           <div class="panel-head-meta">
-            <span class="type-marker" :data-type="event.type" :data-marker="TYPE_MARKER[event.type]">
+            <span class="type-marker" :data-type="event.type" :data-marker="data.TYPE_MARKER[event.type]">
               {{ t(`types.${event.type}`) }}
             </span>
             <span class="status-tag" :data-status="event.status">{{ t(`status.${event.status}`) }}</span>
@@ -25,7 +25,7 @@
         <div class="panel-scroll">
           <!-- 视觉占位（预留图片区域，避免图片墙） -->
           <div class="panel-visual" :data-type="event.type">
-            <span class="visual-mark" aria-hidden="true">{{ TYPE_MARKER[event.type] }}</span>
+            <span class="visual-mark" aria-hidden="true">{{ data.TYPE_MARKER[event.type] }}</span>
             <span class="visual-type">{{ t(`types.${event.type}`) }}</span>
           </div>
 
@@ -38,7 +38,9 @@
             </div>
             <div v-if="event.time" class="fact">
               <dt>{{ t('drawer.time') }}</dt>
-              <dd>{{ event.time }} {{ event.timezone }}</dd>
+              <dd>
+                <EventTime :event="event" inline />
+              </dd>
             </div>
             <div v-if="event.location" class="fact">
               <dt>{{ t('drawer.location') }}</dt>
@@ -77,6 +79,30 @@
 
         <!-- 底部操作：根据事件类型动态出现 -->
         <footer class="panel-actions">
+          <button
+            v-if="canRemind"
+            type="button"
+            class="btn"
+            :class="hasReminder ? 'btn-primary' : 'btn-accent'"
+            @click="reminderOpen = true"
+          >
+            <svg
+              class="btn-bell"
+              viewBox="0 0 24 24"
+              width="14"
+              height="14"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
+              <path d="M13.7 21a2 2 0 0 1-3.4 0" />
+            </svg>
+            {{ hasReminder ? t('reminder.setBtnDone') : t('reminder.setBtn') }}
+          </button>
           <template v-if="event.isOfficial && event.sourceUrl">
             <a
               :href="event.sourceUrl"
@@ -114,25 +140,46 @@
         </footer>
       </aside>
     </Transition>
+
+    <ReminderPanel :open="reminderOpen" :event="event" @close="reminderOpen = false" />
   </Teleport>
 </template>
 
 <script setup>
 // 活动详情面板：桌面右侧滑出 420~520px，移动端底部 Bottom Sheet
-import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { getEventById, TYPE_MARKER } from '../data/events'
+import { useDataStore } from '../stores/data'
 import { useUiStore } from '../stores/ui'
+import { useRemindersStore } from '../stores/reminders'
 import { editorialDate, fullDate, countdownLabel, todayKey } from '../utils/date'
+import { nowInstant, getEventStart } from '../utils/time'
 import { useText } from '../i18n'
+import EventTime from './EventTime.vue'
+import ReminderPanel from './ReminderPanel.vue'
 
 const { t } = useI18n()
 const text = useText()
 const ui = useUiStore()
+const reminders = useRemindersStore()
+const data = useDataStore()
+
+// 提醒设置弹窗开关
+const reminderOpen = ref(false)
+
+// 是否有明确开始时间（可设置提醒）
+const canRemind = computed(() => {
+  if (!event.value?.time) return false
+  const start = getEventStart(event.value)
+  if (!start) return false
+  return Number(start.toInstant().epochMilliseconds) >= Number(nowInstant().epochMilliseconds)
+})
+
+const hasReminder = computed(() => (event.value ? reminders.hasReminder(event.value.id) : false))
 
 const event = computed(() => {
   if (!ui.selectedEventId) return null
-  return getEventById(ui.selectedEventId) || null
+  return data.getEventById(ui.selectedEventId) || null
 })
 
 const isPast = computed(() => (event.value ? event.value.date < todayKey() : false))
@@ -429,6 +476,10 @@ watch(bodyLocked, (locked) => {
 .panel-actions .btn {
   flex: 1 1 auto;
   min-width: 0;
+}
+
+.btn-bell {
+  flex-shrink: 0;
 }
 
 /* ---------- 移动端：Bottom Sheet ---------- */

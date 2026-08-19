@@ -309,6 +309,29 @@ export const events = [
     mapUrl: null
   },
   {
+    id: 'e024',
+    artist: 'evan',
+    date: '2026-09-02',
+    endDate: null,
+    time: '18:00',
+    timezone: 'KST',
+    title: { en: 'HIGHLIGHT MEDLEY', 'zh-CN': '专辑试听片段', ko: '하이라이트 메들리' },
+    type: 'RELEASE',
+    status: STATUS.CONFIRMED,
+    location: { en: 'YouTube', 'zh-CN': 'YouTube', ko: 'YouTube' },
+    description: {
+      en: 'Highlight medley preview of the debut album DEATH OF ME.',
+      'zh-CN': '出道专辑 DEATH OF ME 的试听片段预览。',
+      ko: '데뷔 앨범 DEATH OF ME 하이라이트 메들리 미리보기.'
+    },
+    image: null,
+    sourceName: 'EVAN Official YouTube',
+    sourceUrl: YT,
+    isOfficial: true,
+    onlineUrl: YT,
+    mapUrl: null
+  },
+  {
     id: 'e012',
     artist: 'evan',
     date: '2026-09-07',

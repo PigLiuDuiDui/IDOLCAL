@@ -19,7 +19,10 @@
         </RouterLink>
       </nav>
 
-      <LocaleSwitcher />
+      <div class="header-tools">
+        <TimezoneSwitcher />
+        <LocaleSwitcher />
+      </div>
     </div>
   </header>
 </template>
@@ -29,14 +32,17 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import LocaleSwitcher from './LocaleSwitcher.vue'
+import TimezoneSwitcher from './TimezoneSwitcher.vue'
 
 const { t } = useI18n()
 
 const NAV_ITEMS = [
   { to: '/', key: 'schedule', index: '01' },
-  { to: '/timeline', key: 'timeline', index: '02' },
-  { to: '/archive', key: 'archive', index: '03' },
-  { to: '/about', key: 'about', index: '04' }
+  { to: '/comeback', key: 'comeback', index: '02' },
+  { to: '/reminders', key: 'reminders', index: '03' },
+  { to: '/timeline', key: 'timeline', index: '04' },
+  { to: '/archive', key: 'archive', index: '05' },
+  { to: '/about', key: 'about', index: '06' }
 ]
 
 const navItems = computed(() => NAV_ITEMS.map((item) => ({ ...item, label: t(`nav.${item.key}`) })))
@@ -119,6 +125,12 @@ const navItems = computed(() => NAV_ITEMS.map((item) => ({ ...item, label: t(`na
   letter-spacing: 0.1em;
 }
 
+.header-tools {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 /* 移动端：隐藏桌面导航，仅保留品牌 + 语言切换 */
 @media (max-width: 900px) {
   .desktop-nav {
@@ -128,6 +140,10 @@ const navItems = computed(() => NAV_ITEMS.map((item) => ({ ...item, label: t(`na
   .header-inner {
     height: 56px;
     justify-content: space-between;
+  }
+
+  .header-tools {
+    gap: 6px;
   }
 }
 </style>

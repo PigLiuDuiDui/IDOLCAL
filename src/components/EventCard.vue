@@ -11,7 +11,7 @@
 
     <div class="card-body">
       <div class="card-meta">
-        <span class="type-marker" :data-type="event.type" :data-marker="TYPE_MARKER[event.type]">
+        <span class="type-marker" :data-type="event.type" :data-marker="data.TYPE_MARKER[event.type]">
           {{ t(`types.${event.type}`) }}
         </span>
         <span v-if="featured" class="status-tag" :data-status="event.status">{{ t(`status.${event.status}`) }}</span>
@@ -20,14 +20,34 @@
       <h3 class="card-title">{{ text(event.title) }}</h3>
 
       <div class="card-info">
-        <span v-if="event.time" class="info-item">{{ event.time }} {{ event.timezone }}</span>
+        <span v-if="event.time" class="info-item">
+          <EventTime :event="event" inline />
+        </span>
         <span v-if="event.location" class="info-item">{{ text(event.location) }}</span>
       </div>
     </div>
 
     <div class="card-side">
       <span v-if="!featured" class="status-tag" :data-status="event.status">{{ t(`status.${event.status}`) }}</span>
-      <span class="card-arrow" aria-hidden="true">→</span>
+      <span class="card-side-bottom">
+        <span v-if="hasReminder(event)" class="card-bell" :title="t('reminder.setBtnDone')">
+          <svg
+            viewBox="0 0 24 24"
+            width="13"
+            height="13"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
+            <path d="M13.7 21a2 2 0 0 1-3.4 0" />
+          </svg>
+        </span>
+        <span class="card-arrow" aria-hidden="true">→</span>
+      </span>
     </div>
   </article>
 </template>
@@ -35,10 +55,12 @@
 <script setup>
 // 小型 Editorial Card：极细边框 / 微妙圆角 / 大量留白 / hover 微动画
 import { useI18n } from 'vue-i18n'
+import { useDataStore } from '../stores/data'
 import { useUiStore } from '../stores/ui'
-import { TYPE_MARKER } from '../data/events'
+import { useRemindersStore } from '../stores/reminders'
 import { shortDate } from '../utils/date'
 import { useText } from '../i18n'
+import EventTime from './EventTime.vue'
 
 defineProps({
   event: { type: Object, required: true },
@@ -49,6 +71,13 @@ defineProps({
 const { t } = useI18n()
 const text = useText()
 const ui = useUiStore()
+const reminders = useRemindersStore()
+const data = useDataStore()
+
+// 活动是否已设置提醒（铃铛标记）
+function hasReminder(event) {
+  return reminders.hasReminder(event.id)
+}
 </script>
 
 <style scoped>
@@ -141,6 +170,25 @@ const ui = useUiStore()
   padding: 20px 20px 20px 8px;
 }
 
+.card-side-bottom {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* 已设置提醒的小铃铛 */
+.card-bell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
+}
+
 .card-arrow {
   font-size: 14px;
   color: var(--ink-faint);
@@ -183,6 +231,11 @@ const ui = useUiStore()
 
 .event-card.compact .card-side {
   padding: 14px 4px 14px 8px;
+}
+
+.event-card.compact .card-bell {
+  width: 20px;
+  height: 20px;
 }
 
 .event-card.compact .card-title {

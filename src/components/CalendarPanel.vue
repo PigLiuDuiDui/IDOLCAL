@@ -41,13 +41,13 @@
           <span class="cal-event-dot"></span>
           <span class="cal-event-title">{{ arg.event.title }}</span>
           <span v-if="arg.event.extendedProps?.time" class="cal-event-time">
-            {{ arg.event.extendedProps.time }}
+            <EventTime :event="arg.event.extendedProps.event" inline :show-official="false" />
           </span>
         </div>
 
         <div v-else class="cal-list-event">
           <span class="cal-list-marker" :data-type="arg.event.extendedProps?.type">
-            {{ TYPE_MARKER[arg.event.extendedProps?.type] || '●' }}
+            {{ data.TYPE_MARKER[arg.event.extendedProps?.type] || '●' }}
           </span>
           <div class="cal-list-body">
             <div class="cal-list-meta">
@@ -55,7 +55,7 @@
                 {{ t(`types.${arg.event.extendedProps?.type}`) }}
               </span>
               <span v-if="arg.event.extendedProps?.time" class="cal-list-time">
-                {{ arg.event.extendedProps.time }} {{ arg.event.extendedProps?.timezone }}
+                <EventTime :event="arg.event.extendedProps.event" inline />
               </span>
               <span v-if="arg.event.extendedProps?.location" class="cal-list-loc">
                 {{ text(arg.event.extendedProps.location) }}
@@ -88,10 +88,11 @@ import '@fullcalendar/vue3/themes/classic/theme.css'
 import '@fullcalendar/vue3/themes/classic/palette.css'
 import zhCnLocale from '@fullcalendar/vue3/locales/zh-cn'
 import koLocale from '@fullcalendar/vue3/locales/ko'
-import { eventsSorted, TYPE_MARKER } from '../data/events'
+import { useDataStore } from '../stores/data'
 import { useUiStore } from '../stores/ui'
 import { monthLabel } from '../utils/date'
 import { useText, FC_LOCALES } from '../i18n'
+import EventTime from './EventTime.vue'
 
 const { t, locale } = useI18n()
 const text = useText()
@@ -105,6 +106,7 @@ const FC_LOCALE_DATA = {
 }
 
 const ui = useUiStore()
+const data = useDataStore()
 const calendarRef = ref(null)
 const currentLabel = ref('')
 const viewMode = ref(window.matchMedia(MOBILE_QUERY).matches ? 'list' : 'month')
@@ -114,8 +116,8 @@ const calendar = computed(() => calendarRef.value?.getApi?.() ?? null)
 // 类型筛选后的事件（数据独立，组件只做过滤与渲染）
 const filteredEvents = computed(() =>
   ui.activeTypes.length === 0
-    ? eventsSorted
-    : eventsSorted.filter((e) => ui.activeTypes.includes(e.type))
+    ? data.eventsSorted
+    : data.eventsSorted.filter((e) => ui.activeTypes.includes(e.type))
 )
 
 // FullCalendar 事件源（含 extendedProps，供自定义渲染使用）
@@ -130,7 +132,8 @@ const fcEvents = computed(() =>
       time: e.time,
       timezone: e.timezone,
       location: e.location,
-      status: e.status
+      status: e.status,
+      event: e
     }
   }))
 )

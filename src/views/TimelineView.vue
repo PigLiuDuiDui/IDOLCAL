@@ -4,7 +4,7 @@
       <p class="eyebrow">{{ t('timeline.eyebrow') }}</p>
       <h1 class="page-title">TIMELINE</h1>
       <p class="page-sub">
-        {{ t('timeline.sub', { artist: currentArtist.name, era: currentArtist.era }) }}
+        {{ t('timeline.sub', { artist: data.currentArtist.name, era: data.currentArtist.era }) }}
       </p>
     </header>
 
@@ -26,7 +26,7 @@
               <span class="tl-date">{{ shortDate(item.date) }}<span v-if="item.endDate" class="tl-date-end">–{{ shortDate(item.endDate) }}</span></span>
               <span class="tl-type" :data-type="item.type">{{ t(`types.${item.type}`) }}</span>
               <span class="tl-title">{{ text(item.title) }}</span>
-              <span v-if="item.time" class="tl-time">{{ item.time }} {{ item.timezone }}</span>
+              <span v-if="item.time" class="tl-time"><EventTime :event="item" inline /></span>
               <span class="tl-status" :data-status="item.status">{{ t(`status.${item.status}`) }}</span>
             </button>
           </div>
@@ -50,22 +50,23 @@
 // 拒绝企业项目管理风格：无甘特条、无连线色块，只有档案索引式排版
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { eventsSorted } from '../data/events'
-import { currentArtist } from '../data/artists'
+import { useDataStore } from '../stores/data'
 import { useUiStore } from '../stores/ui'
 import { monthKeyOf, monthLabel, shortDate } from '../utils/date'
 import { useText } from '../i18n'
+import EventTime from '../components/EventTime.vue'
 
 const { t } = useI18n()
 const text = useText()
 const ui = useUiStore()
+const data = useDataStore()
 
 // 按月份分组（升序），应用类型筛选
 const grouped = computed(() => {
   const filtered =
     ui.activeTypes.length === 0
-      ? eventsSorted
-      : eventsSorted.filter((e) => ui.activeTypes.includes(e.type))
+      ? data.eventsSorted
+      : data.eventsSorted.filter((e) => ui.activeTypes.includes(e.type))
 
   const map = new Map()
   for (const e of filtered) {

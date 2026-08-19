@@ -22,6 +22,8 @@ const { t } = useI18n()
 
 const NAV_ITEMS = [
   { to: '/', key: 'schedule', icon: '▦' },
+  { to: '/comeback', key: 'comeback', icon: '◈' },
+  { to: '/reminders', key: 'reminders', icon: '♢' },
   { to: '/timeline', key: 'timeline', icon: '│' },
   { to: '/archive', key: 'archive', icon: '◫' },
   { to: '/about', key: 'about', icon: 'i' }
@@ -55,9 +57,9 @@ const navItems = computed(() => NAV_ITEMS.map((item) => ({ ...item, label: t(`na
   min-height: 56px; /* 点击区域 ≥ 44px */
   text-decoration: none;
   color: var(--ink-faint);
-  font-size: 9px;
+  font-size: 8.5px;
   font-weight: 600;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   transition: color var(--dur) var(--ease);
 }

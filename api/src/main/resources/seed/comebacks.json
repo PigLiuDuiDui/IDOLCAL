@@ -1,0 +1,60 @@
+[
+  {
+    "id": "death-of-me",
+    "artistId": "evan",
+    "title": "DEATH OF ME",
+    "tagline": {
+      "en": "THE FIRST ERA",
+      "zh-CN": "第一个时期",
+      "ko": "첫 번째 시대"
+    },
+    "releaseDate": "2026-09-07",
+    "releaseTime": "18:00",
+    "releaseTimezone": "KST",
+    "stages": [
+      {
+        "stage": "concept-photo",
+        "eventIds": [
+          "e009"
+        ]
+      },
+      {
+        "stage": "tracklist",
+        "eventIds": [
+          "e010"
+        ]
+      },
+      {
+        "stage": "highlight-medley",
+        "eventIds": [
+          "e024"
+        ]
+      },
+      {
+        "stage": "mv-teaser",
+        "eventIds": [
+          "e011"
+        ]
+      },
+      {
+        "stage": "album-release",
+        "eventIds": [
+          "e012"
+        ]
+      },
+      {
+        "stage": "showcase",
+        "eventIds": [
+          "e013"
+        ]
+      },
+      {
+        "stage": "music-shows",
+        "eventIds": [
+          "e014",
+          "e015"
+        ]
+      }
+    ]
+  }
+]

@@ -40,7 +40,7 @@
 // 日历订阅弹窗：webcal 订阅链接（自动适配部署域名）+ .ics 下载备用
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { currentArtist } from '../data/artists'
+import { useDataStore } from '../stores/data'
 
 defineProps({
   open: { type: Boolean, default: false }
@@ -48,7 +48,8 @@ defineProps({
 const emit = defineEmits(['close'])
 
 const { t } = useI18n()
-const artist = currentArtist
+const data = useDataStore()
+const artist = computed(() => data.currentArtist)
 
 const close = () => emit('close')
 

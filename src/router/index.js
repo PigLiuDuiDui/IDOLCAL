@@ -1,5 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import ScheduleView from '../views/ScheduleView.vue'
+import ComebackView from '../views/ComebackView.vue'
+import RemindersView from '../views/RemindersView.vue'
 import TimelineView from '../views/TimelineView.vue'
 import ArchiveView from '../views/ArchiveView.vue'
 import AboutView from '../views/AboutView.vue'
@@ -9,6 +11,8 @@ const router = createRouter({
   history: createWebHashHistory(),
   routes: [
     { path: '/', name: 'schedule', component: ScheduleView, meta: { title: 'Schedule' } },
+    { path: '/comeback', name: 'comeback', component: ComebackView, meta: { title: 'Comeback' } },
+    { path: '/reminders', name: 'reminders', component: RemindersView, meta: { title: 'Reminders' } },
     { path: '/timeline', name: 'timeline', component: TimelineView, meta: { title: 'Timeline' } },
     { path: '/archive', name: 'archive', component: ArchiveView, meta: { title: 'Archive' } },
     { path: '/about', name: 'about', component: AboutView, meta: { title: 'About' } }

@@ -1,7 +1,7 @@
 <template>
   <div class="archive-view container">
     <header class="page-head">
-      <p class="eyebrow">{{ t('archive.eyebrow', { year: currentArtist.year }) }}</p>
+      <p class="eyebrow">{{ t('archive.eyebrow', { year: data.currentArtist.year }) }}</p>
       <h1 class="page-title">ARCHIVE</h1>
       <p class="page-sub">
         {{ t('archive.sub') }}
@@ -48,8 +48,7 @@
 // 档案索引风格：按年份 / 月份分组，克制无卡片
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { eventsSorted } from '../data/events'
-import { currentArtist } from '../data/artists'
+import { useDataStore } from '../stores/data'
 import { useUiStore } from '../stores/ui'
 import { monthKeyOf, monthLabel, shortDate, todayKey } from '../utils/date'
 import { useText } from '../i18n'
@@ -57,10 +56,11 @@ import { useText } from '../i18n'
 const { t } = useI18n()
 const text = useText()
 const ui = useUiStore()
+const data = useDataStore()
 
 const pastEvents = computed(() => {
   const today = todayKey()
-  const past = eventsSorted.filter((e) => e.date < today)
+  const past = data.eventsSorted.filter((e) => e.date < today)
 
   // 应用类型筛选
   return ui.activeTypes.length === 0

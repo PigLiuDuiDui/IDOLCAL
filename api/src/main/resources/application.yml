@@ -1,0 +1,52 @@
+spring:
+  application:
+    name: api
+  server:
+    port: 8080
+
+  # 数据源：H2 文件数据库（持久化到 api/data/idolcal.mv.db，重启不丢）
+  datasource:
+    url: jdbc:h2:file:./data/idolcal;AUTO_SERVER=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  # JPA
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: false
+
+  # H2 控制台（http://localhost:8080/h2-console，调试用；生产环境置 false）
+  h2:
+    console:
+      enabled: ${IDOLCAL_H2_CONSOLE:true}
+      path: /h2-console
+
+  # Redis（限流计数 + 热门接口缓存）
+  # 未启动 Redis 时后端自动降级：限流换内存实现、缓存直查数据库，服务不受影响
+  data:
+    redis:
+      host: ${IDOLCAL_REDIS_HOST:localhost}
+      port: ${IDOLCAL_REDIS_PORT:6379}
+      password: ${IDOLCAL_REDIS_PASSWORD:}
+      timeout: 2s
+
+# 安全加固开关（均可通过环境变量覆盖）
+# 限流：按 IP + 路径规则计数，超限返回 429
+# 缓存：/api/events、/api/meta 短 TTL 缓存（管理端写操作会立即失效）
+# 允许跨域的前端来源（逗号分隔）；生产同域部署（Nginx 反代）时设为空
+idolcal:
+  rate-limit:
+    enabled: ${IDOLCAL_RATE_LIMIT_ENABLED:true}
+  cache:
+    enabled: ${IDOLCAL_CACHE_ENABLED:true}
+  cors:
+    origins: ${IDOLCAL_CORS_ORIGINS:http://localhost:5173,http://localhost:5174,http://127.0.0.1:5173,http://127.0.0.1:5174}
+
+# ---- HTTPS ----
+# 传输加密由部署层完成（推荐 CDN/WAF 或 Nginx 终结 TLS，后端保持 http 内网）；
+# 所有敏感配置（Redis 密码、数据库密码、未来的 JWT Secret）一律走环境变量，禁止写入本文件。

@@ -3,6 +3,8 @@
 // 生成日历订阅文件 public/calendar.ics（RFC 5545）
 // 构建时自动运行（见 package.json 的 build 脚本），也可单独运行：
 //   node scripts/gen-ics.js
+// 数据源：优先后端 API（IDOLCAL_API 可覆盖，默认 http://localhost:8080），
+//         后端不可用时回退本地 src/data/*.js（纯静态部署场景）。
 // 产物 public/calendar.ics 会被 Vite 复制到 dist/ 随站点部署，
 // 粉丝通过 webcal:// 链接订阅后，手机日历自动同步所有活动。
 // ============================================================
@@ -13,8 +15,29 @@ import path from 'node:path'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-const { events, TYPE_LABEL } = await import('../src/data/events.js')
-const { currentArtist } = await import('../src/data/artists.js')
+const API_BASE = process.env.IDOLCAL_API || 'http://localhost:8080'
+
+async function getJson(apiPath) {
+  const res = await fetch(`${API_BASE}${apiPath}`)
+  if (!res.ok) throw new Error(`API ${apiPath} → ${res.status}`)
+  return res.json()
+}
+
+// ---- 数据源加载（API 优先，失败回退本地） ----
+let events, TYPE_LABEL, currentArtist
+
+try {
+  const [ev, meta] = await Promise.all([getJson('/api/events'), getJson('/api/meta')])
+  const artists = await getJson('/api/artists')
+  events = ev
+  TYPE_LABEL = Object.fromEntries(meta.eventTypes.map((t) => [t.id, t.label]))
+  currentArtist = artists.find((a) => a.current) || artists[0]
+  console.log('[gen-ics] 数据源：后端 API')
+} catch (err) {
+  console.warn(`[gen-ics] 后端 API 不可用（${err.message}），回退本地数据`)
+  ;({ events, TYPE_LABEL } = await import('../src/data/events.js'))
+  ;({ currentArtist } = await import('../src/data/artists.js'))
+}
 
 /** 多语言对象取中文回退英文；纯字符串原样返回（如 sourceName） */
 const t = (f, fb = '') => {

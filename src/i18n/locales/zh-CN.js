@@ -8,6 +8,8 @@ export default {
   nav: {
     label: '主导航',
     schedule: '日程',
+    comeback: '回归',
+    reminders: '提醒',
     timeline: '时间线',
     archive: '档案',
     about: '关于'
@@ -49,6 +51,76 @@ export default {
     list: '列表',
     more: '＋{n} 更多',
     empty: '所选类型暂无活动。'
+  },
+  home: {
+    switchView: '切换视图',
+    today: '今日',
+    thisWeek: '本周',
+    calendar: '日历',
+    todayLabel: '今日',
+    thisWeekLabel: '本周',
+    todayTag: '今天',
+    todayEmpty: '今天没有活动，享受平静 —— 或看看本周有什么。',
+    weekEmpty: '未来 7 天暂无活动。',
+    allDay: '全天'
+  },
+  reminder: {
+    setBtn: '提醒我',
+    setBtnDone: '已设置提醒',
+    title: '设置提醒',
+    eyebrow: '活动提醒',
+    at: '于',
+    confirm: '设置提醒',
+    update: '更新提醒',
+    cancel: '取消提醒',
+    setAt: '已设置提醒：{at}',
+    noTime: '该活动尚未确认开始时间。',
+    options: {
+      '1d': '1 天前',
+      '3h': '3 小时前',
+      '1h': '1 小时前',
+      '30m': '30 分钟前',
+      start: '活动开始时'
+    }
+  },
+  reminders: {
+    eyebrow: '我的提醒',
+    sub: '集中查看所有已设置的活动提醒。提醒保存在浏览器本地，系统级通知将在 PWA 更新中上线。',
+    alertAt: '提醒时间',
+    cancel: '取消',
+    emptyTitle: '还没有提醒',
+    emptyDesc: '打开任意活动，点击「提醒我」即可在活动开始前收到提醒。',
+    browse: '浏览日程',
+    note: '提醒基于活动官方时区计算，并转换为你所在时区显示。'
+  },
+  timezone: {
+    select: '选择时区',
+    eyebrow: '时区',
+    auto: '自动',
+    autoHint: '跟随设备时区',
+    official: '官方时间',
+    yourTime: '你的时间',
+    close: '关闭'
+  },
+  comeback: {
+    eyebrow: '回归',
+    releaseDate: '发行日期',
+    timeline: '回归时间线',
+    timelineNote: '完整日程',
+    statuses: {
+      COMPLETED: '已完成',
+      UPCOMING: '即将到来',
+      TODAY: '今天'
+    },
+    stages: {
+      'concept-photo': '概念照',
+      tracklist: '曲目列表',
+      'highlight-medley': '试听片段',
+      'mv-teaser': 'MV 预告',
+      'album-release': '专辑发行',
+      showcase: 'Showcase',
+      'music-shows': '音乐节目'
+    }
   },
   upcoming: {
     title: '近期日程',

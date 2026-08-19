@@ -29,14 +29,15 @@
 // 轻量 Segmented / Pill Filter：支持多选，移动端横向滚动
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { EVENT_TYPES } from '../data/events'
+import { useDataStore } from '../stores/data'
 import { useUiStore } from '../stores/ui'
 import { useText } from '../i18n'
 
 const { t } = useI18n()
 const text = useText()
 const ui = useUiStore()
-const types = EVENT_TYPES
+const data = useDataStore()
+const types = computed(() => data.eventTypes)
 
 const isAllActive = computed(() => ui.activeTypes.length === 0)
 

@@ -1,0 +1,20 @@
+[
+  {
+    "id": "evan",
+    "name": "EVAN",
+    "subName": "OFFICIAL SCHEDULE",
+    "year": "2026",
+    "era": "DEATH OF ME",
+    "eraPeriod": "AUG — NOV 2026",
+    "accent": "#a62f2f",
+    "accentSoft": "#efe7e4",
+    "heroImage": null,
+    "sourceTag": "Official",
+    "intro": {
+      "en": "EVAN’s official schedule archive. All schedules come from public information on official channels, labeled with source and credibility — unverified unofficial content is never spread.",
+      "zh-CN": "EVAN 的官方活动档案。所有日程均来自官方渠道公开信息，标注来源与可信度，不传播未经证实的非官方内容。",
+      "ko": "EVAN의 공식 일정 아카이브. 모든 일정은 공식 채널의 공개 정보에서 가져왔으며, 출처와 신뢰도를 표시하고 확인되지 않은 비공식 내용은 유포하지 않습니다."
+    },
+    "current": true
+  }
+]
