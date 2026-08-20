@@ -22,7 +22,7 @@ const PRECACHE_URLS = [
   '/index.html',
   '/icon-192.png',
   '/calendar.ics',
-  .../* __PRECACHE_ASSETS__ 占位符会被构建脚本替换为实际 JS/CSS 清单 */
+  /* __PRECACHE_ASSETS__ 占位符会被构建脚本替换为实际 JS/CSS 清单 */
 ]
 
 /* 只缓存同源 GET 请求（API 请求不做离线缓存，前端有本地快照回退） */
