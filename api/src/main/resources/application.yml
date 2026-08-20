@@ -32,10 +32,11 @@ spring:
       hibernate:
         format_sql: false
 
-  # H2 控制台（http://localhost:8080/h2-console，调试用；生产环境置 false）
+  # H2 控制台（http://localhost:8080/h2-console，调试用；默认关闭，生产勿开启）
+  # 本地开发可用 --spring.profiles.active=dev（见 application-dev.yml）或设 IDOLCAL_H2_CONSOLE=true
   h2:
     console:
-      enabled: ${IDOLCAL_H2_CONSOLE:true}
+      enabled: ${IDOLCAL_H2_CONSOLE:false}
       path: /h2-console
 
   # Redis（限流计数 + 热门接口缓存）
@@ -59,14 +60,15 @@ idolcal:
   cors:
     origins: ${IDOLCAL_CORS_ORIGINS:http://localhost:5173,http://localhost:5174,http://127.0.0.1:5173,http://127.0.0.1:5174}
   # 管理后台权限（Admin Login → JWT → ADMIN Role）：
-  # 保护 /api/admin/** 与活动/艺人/回归/教程的写操作；
-  # 管理员账号由启动器创建，密码必须通过 IDOLCAL_ADMIN_PASSWORD 注入（未设置时生成随机密码并打印日志）
+  # 保护 /api/admin/** 与活动/艺人/回归/教程/元数据的写操作（@AdminOnly 注解驱动）；
+  # 管理员账号由启动器创建，密码必须通过 IDOLCAL_ADMIN_PASSWORD 注入；
+  # strict 模式下（默认）未设置密码/密钥或强度不足直接拒绝启动，本地开发用 dev profile 放宽
   auth:
     enabled: ${IDOLCAL_AUTH_ENABLED:true}
     jwt-secret: ${IDOLCAL_JWT_SECRET:}
     jwt-ttl-hours: ${IDOLCAL_JWT_TTL_HOURS:24}
-    # 生产强制：true 时未配置 JWT 密钥或密钥 <32 字节直接拒绝启动
-    strict-jwt-secret: ${IDOLCAL_AUTH_STRICT_JWT_SECRET:false}
+    # 生产强制：true 时未配置 JWT 密钥或密钥 <32 字节直接拒绝启动（默认开启，本地开发用 dev profile 放宽）
+    strict-jwt-secret: ${IDOLCAL_AUTH_STRICT_JWT_SECRET:true}
     admin-username: ${IDOLCAL_ADMIN_USERNAME:admin}
     admin-password: ${IDOLCAL_ADMIN_PASSWORD:}
     # 登录连续失败锁定（按 用户名+IP）：失败次数 / 锁定时长（分钟）

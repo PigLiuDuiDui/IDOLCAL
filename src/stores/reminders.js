@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { useDataStore } from './data'
-import { REMINDER_OFFSETS, getReminderInstant, CUSTOM_OFFSET_MIN, CUSTOM_OFFSET_MAX } from '../utils/time'
+import { REMINDER_OFFSETS, getReminderInstant, nowInstant, CUSTOM_OFFSET_MIN, CUSTOM_OFFSET_MAX } from '../utils/time'
 
 // ============================================================
 // 提醒状态管理（浏览器本地，为未来 PWA / Web Push 预留字段）
@@ -50,10 +50,10 @@ export const useRemindersStore = defineStore('reminders', {
         .map((r) => ({ ...r, event: eventOf(r.eventId) }))
         .filter((r) => r.event)
         .sort((a, b) => {
-          const ia = getReminderInstant(a.event, a.offset)
-          const ib = getReminderInstant(b.event, b.offset)
+          const ia = instantOf(a)
+          const ib = instantOf(b)
           if (!ia || !ib) return 0
-          return TemporalUntil(ia) - TemporalUntil(ib)
+          return ia.epochMilliseconds - ib.epochMilliseconds
         })
     }
   },
@@ -100,12 +100,12 @@ export const useRemindersStore = defineStore('reminders', {
     reminderOf(eventId) {
       return this.items[eventId] || null
     },
-    /** 清理已过期的提醒（活动开始时间已过的） */
+    /** 清理已触发的提醒（触发时刻已过的；custom 偏移同样按 offsetMinutes 计算） */
     prune() {
+      const now = nowInstant().epochMilliseconds
       for (const [eventId, r] of Object.entries(this.items)) {
-        const event = eventOf(eventId)
-        const instant = event ? getReminderInstant(event, r.offset) : null
-        if (!instant || TemporalUntil(instant) < 0) delete this.items[eventId]
+        const instant = instantOf({ ...r, event: eventOf(eventId) })
+        if (!instant || instant.epochMilliseconds < now) delete this.items[eventId]
       }
       this.persist()
       this.syncPushReminders().catch(() => {})
@@ -180,7 +180,8 @@ export const useRemindersStore = defineStore('reminders', {
   }
 })
 
-// 简化比较：Instant 相减转毫秒
-function TemporalUntil(instant) {
-  return Number(instant.epochMilliseconds)
+// 提醒触发时刻（Instant）：统一携带 offsetMinutes，custom 偏移才能正确计算；
+// 事件缺失或配置非法返回 null。list 排序与 prune 清理共用同一入口。
+function instantOf(r) {
+  return r && r.event ? getReminderInstant(r.event, r.offset, r.offsetMinutes) : null
 }

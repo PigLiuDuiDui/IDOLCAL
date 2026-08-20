@@ -73,7 +73,7 @@ public class JwtUtil {
         }
     }
 
-    /** 校验并解析；签名错误 / 过期 / 格式非法返回 null */
+    /** 校验并解析；签名错误 / 过期 / 格式非法 / 关键字段缺失返回 null */
     public Map<String, String> verify(String token) {
         try {
             String[] parts = token.split("\\.");
@@ -83,10 +83,35 @@ public class JwtUtil {
                 return null;
             }
             JsonNode payload = JSON.readTree(Base64.getUrlDecoder().decode(parts[1]));
-            if (System.currentTimeMillis() / 1000 >= payload.get("exp").asLong()) return null;
-            return Map.of("username", payload.get("sub").asText(), "role", payload.get("role").asText());
+            // exp / sub / role 缺字段直接判非法（asLong / asText 对 null 会 NPE，靠 catch 兜底太脆弱）
+            JsonNode exp = payload.get("exp");
+            if (exp == null || !exp.isNumber() || System.currentTimeMillis() / 1000 >= exp.asLong()) return null;
+            JsonNode sub = payload.get("sub");
+            JsonNode role = payload.get("role");
+            if (sub == null || role == null) return null;
+            return Map.of("username", sub.asText(), "role", role.asText());
         } catch (Exception e) {
             return null;
+        }
+    }
+
+    /** 通用 HMAC-SHA256 签名（推送设备凭证等场景复用同一密钥与实现，避免各自造轮子） */
+    public String signData(String data) {
+        try {
+            return b64(hmac(data));
+        } catch (Exception e) {
+            throw new IllegalStateException("HMAC sign failed", e);
+        }
+    }
+
+    /** 校验 HMAC 签名（恒定时间比较，防时序攻击）；非法输入返回 false */
+    public boolean verifyData(String data, String signature) {
+        if (data == null || signature == null || signature.isBlank()) return false;
+        try {
+            String expected = b64(hmac(data));
+            return MessageDigest.isEqual(expected.getBytes(StandardCharsets.UTF_8), signature.getBytes(StandardCharsets.UTF_8));
+        } catch (Exception e) {
+            return false;
         }
     }
 

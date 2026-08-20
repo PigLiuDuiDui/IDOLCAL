@@ -25,6 +25,10 @@ public class AuthService {
 
     /** 登录失败守卫（内存实现；多实例部署时建议换成 Redis 计数） */
     private final Map<String, LoginGuard> guards = new ConcurrentHashMap<>();
+    /** 惰性清理：超过阈值大小且距上次清理超过间隔才扫描，避免高频请求时反复全表遍历 */
+    private static final int PURGE_MIN_SIZE = 128;
+    private static final long PURGE_INTERVAL_MS = 60_000L;
+    private volatile long lastPurgeAt = 0L;
 
     public AuthService(UserRepository users, JwtUtil jwt,
                        @Value("${idolcal.auth.login-max-failures:5}") int maxFailures,
@@ -37,19 +41,28 @@ public class AuthService {
 
     /** 登录校验，成功返回 JWT（连续失败锁定；ip 用于失败维度统计） */
     public String login(String username, String password, String ip) {
+        long now = System.currentTimeMillis();
+        purgeExpired(now);
         LoginGuard guard = guards.computeIfAbsent(guardKey(username, ip), k -> new LoginGuard(maxFailures, lockMillis));
-        if (guard.locked(System.currentTimeMillis())) {
+        if (guard.locked(now)) {
             throw new UnauthorizedException("Too many failed attempts, account temporarily locked");
         }
         User user = users.findByUsername(username).orElse(null);
         if (user == null || user.getPasswordHash() == null || !PasswordHasher.verify(password, user.getPasswordHash())) {
-            guard.fail(System.currentTimeMillis());
+            guard.fail(now);
             throw new UnauthorizedException("Invalid username or password");
         }
         guard.reset();
-        user.setLastLoginAt(System.currentTimeMillis());
+        user.setLastLoginAt(now);
         users.save(user);
         return jwt.createToken(user.getUsername(), user.getRole());
+    }
+
+    /** 清理长时间空闲的守卫（未锁定且超过一个锁定期无人访问），防止内存无限增长 */
+    private void purgeExpired(long now) {
+        if (guards.size() < PURGE_MIN_SIZE || now - lastPurgeAt < PURGE_INTERVAL_MS) return;
+        lastPurgeAt = now;
+        guards.entrySet().removeIf(e -> e.getValue().isIdle(now, lockMillis));
     }
 
     /** token 是否有效且为 ADMIN 角色 */
@@ -69,6 +82,7 @@ public class AuthService {
         private final long lockMillis;
         private int failures;
         private long lockUntil;
+        private long lastActiveAt;
 
         LoginGuard(int maxFailures, long lockMillis) {
             this.maxFailures = maxFailures;
@@ -76,7 +90,13 @@ public class AuthService {
         }
 
         synchronized boolean locked(long now) {
+            lastActiveAt = now;
             return lockUntil > now;
+        }
+
+        /** 未锁定且空闲超过一个锁定期 → 可整体移除（锁定中的守卫由 lastActiveAt 持续刷新保持存活） */
+        synchronized boolean isIdle(long now, long idleMillis) {
+            return lockUntil <= now && now - lastActiveAt > idleMillis;
         }
 
         synchronized void fail(long now) {

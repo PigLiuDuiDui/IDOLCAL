@@ -26,16 +26,12 @@ public class VapidKeys {
         String priv = System.getenv("IDOLCAL_VAPID_PRIVATE_KEY");
         if (isBlank(pub) || isBlank(priv)) {
             // 开发兜底：读 api/.vapid-keys（两行：公钥 / 私钥）
-            // 候选路径覆盖两种启动方式：根目录（mvn -f api/pom.xml）与 api/ 目录（cd api && ./mvnw）
-            Path[] candidates = { Path.of("api/.vapid-keys"), Path.of(".vapid-keys") };
-            for (Path file : candidates) {
-                if (Files.exists(file)) {
-                    var lines = Files.readAllLines(file).stream().map(String::trim).filter(s -> !s.isEmpty()).toList();
-                    if (lines.size() >= 2) {
-                        pub = lines.get(0);
-                        priv = lines.get(1);
-                        break;
-                    }
+            Path file = Path.of(".vapid-keys");
+            if (Files.exists(file)) {
+                var lines = Files.readAllLines(file).stream().map(String::trim).filter(s -> !s.isEmpty()).toList();
+                if (lines.size() >= 2) {
+                    pub = lines.get(0);
+                    priv = lines.get(1);
                 }
             }
         }

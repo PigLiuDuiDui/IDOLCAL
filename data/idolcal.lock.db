@@ -1,6 +1,6 @@
 #FileLock
-#Thu Aug 20 15:05:05 CST 2026
+#Thu Aug 20 16:55:49 CST 2026
 hostName=DESKTOP-D0B3US9
-id=1a01dfcd9355c87c7ee4a7804c9c0f306997d0b75aa
+id=1a01e623af6ca949835ae809b683d23e089e32a3c7e
 method=file
-server=192.168.0.13\:50199
+server=192.168.2.123\:32417

@@ -1,5 +1,6 @@
 package com.example.bim.api.web;
 
+import com.example.bim.api.auth.AdminOnly;
 import com.example.bim.api.dto.ArtistDto;
 import com.example.bim.api.service.ArtistService;
 import jakarta.validation.Valid;
@@ -42,17 +43,20 @@ public class ArtistController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @AdminOnly
     public ArtistDto create(@Valid @RequestBody ArtistDto dto) {
         return service.create(dto);
     }
 
     @PutMapping("/{id}")
+    @AdminOnly
     public ArtistDto update(@PathVariable String id, @Valid @RequestBody ArtistDto dto) {
         return service.update(id, dto);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @AdminOnly
     public void delete(@PathVariable String id) {
         service.delete(id);
     }

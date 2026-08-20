@@ -1,5 +1,6 @@
 package com.example.bim.api.web;
 
+import com.example.bim.api.auth.AdminOnly;
 import com.example.bim.api.dto.TutorialDto;
 import com.example.bim.api.service.TutorialService;
 import jakarta.validation.Valid;
@@ -42,17 +43,20 @@ public class TutorialController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @AdminOnly
     public TutorialDto create(@Valid @RequestBody TutorialDto dto) {
         return service.create(dto);
     }
 
     @PutMapping("/{id}")
+    @AdminOnly
     public TutorialDto update(@PathVariable String id, @Valid @RequestBody TutorialDto dto) {
         return service.update(id, dto);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @AdminOnly
     public void delete(@PathVariable String id) {
         service.delete(id);
     }

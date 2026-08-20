@@ -101,13 +101,6 @@
             <version>1.78.1</version>
         </dependency>
 
-        <!-- 生产日志 JSON 结构化输出（logback-spring.xml prod profile 使用 LogstashEncoder） -->
-        <dependency>
-            <groupId>net.logstash.logback</groupId>
-            <artifactId>logstash-logback-encoder</artifactId>
-            <version>8.0</version>
-        </dependency>
-
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

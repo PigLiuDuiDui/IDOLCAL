@@ -28,11 +28,13 @@ public class MetaService {
     private final MetaRepository repo;
     private final ObjectMapper mapper;
     private final CacheService cache;
+    private final WebPushService webPush;
 
-    public MetaService(MetaRepository repo, ObjectMapper mapper, CacheService cache) {
+    public MetaService(MetaRepository repo, ObjectMapper mapper, CacheService cache, WebPushService webPush) {
         this.repo = repo;
         this.mapper = mapper;
         this.cache = cache;
+        this.webPush = webPush;
     }
 
     /** 合并所有 meta 为单一对象：{ eventTypes, statuses, sourceLevels, comebackStages } */
@@ -63,6 +65,8 @@ public class MetaService {
         }
         JsonNode saved = parse(repo.save(m).getMetaValue());
         cache.evict(CACHE_KEY);
+        // eventTypes 变更后推送通知的类型标签同步重载，避免发送路径读到旧标签
+        if ("eventTypes".equals(key)) webPush.invalidateTypeLabels();
         return saved;
     }
 

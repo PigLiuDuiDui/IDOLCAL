@@ -66,7 +66,7 @@
           <p v-if="weekGroups.length === 0" class="quick-empty">{{ t('home.weekEmpty') }}</p>
           <div v-for="group in weekGroups" :key="group.date" class="week-group">
             <div class="week-group-head">
-              <h2 class="week-group-title">{{ groupLabel(group.date) }}</h2>
+              <h2 class="week-group-title">{{ weekGroupLabel(group.date, locale) }}</h2>
               <span v-if="isToday(group.date)" class="week-group-tag">{{ t('home.todayTag') }}</span>
             </div>
             <div class="quick-list">
@@ -111,8 +111,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { useDataStore } from '../stores/data'
 import { useUiStore } from '../stores/ui'
 import { useTimezoneStore } from '../stores/timezone'
-import { todayKeyInZone, localizeEvent, tzAbbr, diffDaysKey } from '../utils/time'
-import { fullDate } from '../utils/date'
+import { todayKeyInZone, localizeEvent, tzAbbr, weekGroupLabel } from '../utils/time'
+import { fullDate, addDaysKey } from '../utils/date'
 import HeroSection from '../components/HeroSection.vue'
 import FilterBar from '../components/FilterBar.vue'
 import CalendarPanel from '../components/CalendarPanel.vue'
@@ -155,7 +155,7 @@ const tzLabel = computed(() => tzAbbr(timezone.displayZone, todayLocal.value))
 const todayEvents = computed(() => {
   const today = todayLocal.value
   const filtered = filterByTypes(data.eventsSorted)
-  const list = filtered.filter((e) => localizeEvent(e, timezone.displayZone).local?.date === today)
+  const list = filtered.filter((e) => localizeCached(e).local?.date === today)
   return list.sort(compareByLocalTime)
 })
 
@@ -166,7 +166,7 @@ const weekGroups = computed(() => {
   const groups = []
   for (let i = 0; i < 7; i++) {
     const date = addDaysKey(today, i)
-    const items = filtered.filter((e) => localizeEvent(e, timezone.displayZone).local?.date === date)
+    const items = filtered.filter((e) => localizeCached(e).local?.date === date)
     if (items.length) groups.push({ date, items: items.sort(compareByLocalTime) })
   }
   return groups
@@ -178,40 +178,27 @@ function filterByTypes(list) {
 
 // 本地时间排序：无 time 的排最后
 function compareByLocalTime(a, b) {
-  const ta = localizeEvent(a, timezone.displayZone).local
-  const tb = localizeEvent(b, timezone.displayZone).local
+  const ta = localizeCached(a).local
+  const tb = localizeCached(b).local
   if (!ta) return 1
   if (!tb) return -1
   return ta.time < tb.time ? -1 : 1
 }
 
-// YYYY-MM-DD + n 天
-function addDaysKey(dateKey, n) {
-  const d = new Date(`${dateKey}T12:00:00`)
-  d.setDate(d.getDate() + n)
-  const y = d.getFullYear()
-  const m = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  return `${y}-${m}-${day}`
+// localizeEvent 结果缓存：同一事件 + 同一显示时区只做一次 Temporal 时区转换，
+// filter / 排序 / 分组共用同一份结果（Temporal 转换是昂贵操作，避免每屏重复计算）
+const localizeCache = new Map()
+function localizeCached(e) {
+  const key = `${e.id}|${timezone.displayZone}`
+  const hit = localizeCache.get(key)
+  if (hit && hit.event === e) return hit.value // 事件对象已刷新（数据重载）则重新转换
+  const value = localizeEvent(e, timezone.displayZone)
+  localizeCache.set(key, { event: e, value })
+  return value
 }
 
 function isToday(dateKey) {
   return dateKey === todayLocal.value
-}
-
-// 分组标题：'THU · AUG 20' / '周四 · 8月20日' / '목 · 8월 20일'
-function groupLabel(dateKey) {
-  const [y, m, d] = dateKey.split('-').map(Number)
-  const l = locale.value
-  if (l === 'zh-CN') {
-    return `周${['日', '一', '二', '三', '四', '五', '六'][new Date(y, m - 1, d).getDay()]} · ${m}月${d}日`
-  }
-  if (l === 'ko') {
-    return `${['일', '월', '화', '수', '목', '금', '토'][new Date(y, m - 1, d).getDay()]} · ${m}월 ${d}일`
-  }
-  const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
-  const W = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
-  return `${W[new Date(y, m - 1, d).getDay()]} · ${MONTHS[m - 1]} ${d}`
 }
 </script>
 

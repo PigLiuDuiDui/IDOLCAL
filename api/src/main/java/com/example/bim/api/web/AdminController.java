@@ -1,5 +1,6 @@
 package com.example.bim.api.web;
 
+import com.example.bim.api.auth.AdminOnly;
 import com.example.bim.api.auth.AuthService;
 import com.example.bim.api.dto.AdminLoginRequest;
 import com.example.bim.api.entity.PushSchedule;
@@ -56,6 +57,7 @@ public class AdminController {
     }
 
     @GetMapping("/push/stats")
+    @AdminOnly
     public Map<String, Object> pushStats() {
         long dayStart = LocalDate.now(ZoneOffset.UTC).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
         Map<String, Long> counts = new HashMap<>();
@@ -75,6 +77,7 @@ public class AdminController {
 
     /** 调度 + 任务状态分布：调度反映 Fan-out 执行进度，任务反映每个设备的投递结果 */
     @GetMapping("/push/tasks/stats")
+    @AdminOnly
     public Map<String, Object> taskStats() {
         Map<String, Object> out = new LinkedHashMap<>();
         out.put("schedules", distribution(schedules.countByStatus()));
@@ -99,6 +102,7 @@ public class AdminController {
 
     /** 未来 24h 即将触发的调度：每条附 Fan-out 收件人数（可投递任务数），直接预览万人级推送规模 */
     @GetMapping("/push/upcoming")
+    @AdminOnly
     public List<Map<String, Object>> upcoming() {
         long now = System.currentTimeMillis();
         List<PushSchedule> due = schedules.findByStatusInAndTriggerAtBetween(

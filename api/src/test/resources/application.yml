@@ -1,0 +1,10 @@
+# 测试环境：不要求生产级 JWT 密钥 / 管理员密码，保证 @SpringBootTest 可加载上下文；
+# 测试用 H2 内存库（见 ApiApplicationTests 等），控制台保持关闭。
+idolcal:
+  auth:
+    strict-jwt-secret: false
+
+spring:
+  h2:
+    console:
+      enabled: false

@@ -4,14 +4,16 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.nio.charset.StandardCharsets;
 
 /**
- * 管理权限拦截：保护管理接口（/api/admin/**）与数据写操作（POST/PUT/PATCH/DELETE）。
+ * 管理权限拦截：保护 @AdminOnly 标注的接口（方法或类级）与 /api/admin/** 命名空间。
  * 要求 Authorization: Bearer <JWT> 且角色为 ADMIN；开关 idolcal.auth.enabled=false 可整体关闭。
- * /api/admin/login 放行（登录本身无需 token）。
+ * /api/admin/login 放行（登录本身无需 token）；数据写接口一律显式标注 @AdminOnly，
+ * 不再按路径前缀猜测（避免新增相似前缀路由被误拦 / 漏拦）。
  */
 @Component
 public class AuthInterceptor implements HandlerInterceptor {
@@ -28,11 +30,16 @@ public class AuthInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         if (!enabled) return true;
         String path = request.getRequestURI();
-        String method = request.getMethod();
 
+        boolean annotated = false;
+        if (handler instanceof HandlerMethod hm) {
+            // 方法级注解优先；类级注解作用于该类全部方法（如 AdminController 除 login 外逐方法标注）
+            annotated = hm.hasMethodAnnotation(AdminOnly.class)
+                    || hm.getBeanType().isAnnotationPresent(AdminOnly.class);
+        }
+        // /api/admin/** 命名空间兜底：未来新加管理接口忘标注解时不裸奔（login 除外）
         boolean adminApi = path.startsWith("/api/admin/") && !path.equals("/api/admin/login");
-        boolean dataWrite = isDataWrite(path, method);
-        if (!adminApi && !dataWrite) return true;
+        if (!annotated && !adminApi) return true;
 
         String token = bearerToken(request);
         if (!auth.isAdmin(token)) {
@@ -43,17 +50,6 @@ public class AuthInterceptor implements HandlerInterceptor {
             return false;
         }
         return true;
-    }
-
-    /** 活动 / 艺人 / 回归 / 教程的写操作（管理端数据维护） */
-    private boolean isDataWrite(String path, String method) {
-        if (!method.equals("POST") && !method.equals("PUT") && !method.equals("PATCH") && !method.equals("DELETE")) {
-            return false;
-        }
-        return path.startsWith("/api/events")
-                || path.startsWith("/api/artists")
-                || path.startsWith("/api/comebacks")
-                || path.startsWith("/api/tutorials");
     }
 
     private String bearerToken(HttpServletRequest request) {

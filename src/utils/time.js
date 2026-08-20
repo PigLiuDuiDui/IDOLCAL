@@ -280,3 +280,13 @@ export function weekdayShort(dateKey, locale) {
   if (locale === 'ko') return ['일', '월', '화', '수', '목', '금', '토'][d.getDay()]
   return W_EN[d.getDay()]
 }
+
+/** This Week 分组标题：'THU · AUG 20' / '周四 · 8月20日' / '목 · 8월 20일' */
+export function weekGroupLabel(dateKey, locale) {
+  const [y, m, d] = dateKey.split('-').map(Number)
+  const w = weekdayShort(dateKey, locale)
+  if (locale === 'zh-CN') return `${w} · ${m}月${d}日`
+  if (locale === 'ko') return `${w} · ${m}월 ${d}일`
+  const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
+  return `${w} · ${MONTHS[m - 1]} ${d}`
+}

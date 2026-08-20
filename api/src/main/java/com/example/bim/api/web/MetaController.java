@@ -1,5 +1,6 @@
 package com.example.bim.api.web;
 
+import com.example.bim.api.auth.AdminOnly;
 import com.example.bim.api.service.MetaService;
 import tools.jackson.databind.JsonNode;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,6 +33,7 @@ public class MetaController {
     }
 
     @PutMapping("/{key}")
+    @AdminOnly
     public JsonNode put(@PathVariable String key, @RequestBody JsonNode value) {
         return service.put(key, value);
     }

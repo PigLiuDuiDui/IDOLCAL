@@ -32,6 +32,12 @@ public class ApiExceptionHandler {
         return build(HttpStatus.BAD_REQUEST, "BAD_REQUEST", e.getMessage());
     }
 
+    /** 资源状态冲突（订阅 endpoint 已被其他设备占用等）：409 */
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<Map<String, Object>> conflict(ConflictException e) {
+        return build(HttpStatus.CONFLICT, "CONFLICT", e.getMessage());
+    }
+
     /** 未认证 / 未授权（管理后台权限）：401 */
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<Map<String, Object>> unauthorized(UnauthorizedException e) {

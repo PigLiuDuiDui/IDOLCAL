@@ -37,21 +37,29 @@ public class EventService {
         this.cache = cache;
     }
 
-    /** 列表（按日期时间升序），支持可选过滤；全量部分走 Redis 缓存 */
+    /**
+     * 列表（按日期时间升序），支持可选过滤；全量部分走 Redis 缓存。
+     * page / size 同时提供时在过滤后内存分页（默认全量，兼容旧客户端）。
+     */
     @Transactional(readOnly = true)
-    public List<EventDto> list(String type, String status, String artist, String from, String to) {
+    public List<EventDto> list(String type, String status, String artist, String from, String to,
+                               Integer page, Integer size) {
         List<EventDto> all = cache.get(CACHE_KEY, EVENT_LIST_TYPE);
         if (all == null) {
             all = repo.findAllByOrderByDateAscTimeAsc().stream().map(this::toDto).toList();
             cache.put(CACHE_KEY, all, Duration.ofSeconds(15));
         }
-        return all.stream()
+        List<EventDto> filtered = all.stream()
                 .filter(e -> type == null || type.isBlank() || type.equals(e.type()))
                 .filter(e -> status == null || status.isBlank() || status.equals(e.status()))
                 .filter(e -> artist == null || artist.isBlank() || artist.equals(e.artist()))
                 .filter(e -> from == null || from.isBlank() || e.date() == null || e.date().compareTo(from) >= 0)
                 .filter(e -> to == null || to.isBlank() || e.date() == null || e.date().compareTo(to) <= 0)
                 .toList();
+        if (page == null || size == null || size <= 0) return filtered;
+        int fromIdx = Math.max(0, page) * size;
+        if (fromIdx >= filtered.size()) return List.of();
+        return filtered.subList(fromIdx, Math.min(fromIdx + size, filtered.size()));
     }
 
     @Transactional(readOnly = true)
@@ -110,11 +118,11 @@ public class EventService {
         return s != null && s.matches("^\\d{4}-\\d{2}-\\d{2}$");
     }
 
-    /** 自动生成 id：现有 e### 最大序号 + 1（e025 …）；无序号 id 时从 e001 开始 */
+    /** 自动生成 id：现有 e### 最大序号 + 1（e025 …）；只投影 id 列，避免全表加载实体 */
     private String nextId() {
         int max = 0;
-        for (Event e : repo.findAll()) {
-            Matcher m = NUMERIC_ID.matcher(e.getId());
+        for (String id : repo.findAllIds()) {
+            Matcher m = NUMERIC_ID.matcher(id);
             if (m.matches()) max = Math.max(max, Integer.parseInt(m.group(1)));
         }
         return String.format("e%03d", max + 1);

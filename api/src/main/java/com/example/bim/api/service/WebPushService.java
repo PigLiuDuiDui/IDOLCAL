@@ -12,6 +12,8 @@ import com.example.bim.api.repository.MetaRepository;
 import com.example.bim.api.repository.PushDeliveryLogRepository;
 import com.example.bim.api.repository.PushSubscriptionRepository;
 import com.example.bim.api.repository.UserDeviceRepository;
+import com.example.bim.api.web.ConflictException;
+import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -93,6 +95,9 @@ public class WebPushService {
     private final EventRepository events;
     private final MetaRepository meta;
     private final VapidKeys vapidKeys;
+    private final DeviceAuthService deviceAuth;
+    /** 事件类型标签缓存（启动加载，meta 写操作失效；避免 Fan-out 每批发送重复查库） */
+    private volatile Map<String, String> typeLabelCache = Map.of();
     /** 仅用于生成已签名加密的 HttpPost（preparePost），实际发送走自定义超时客户端 */
     private final nl.martijndwars.webpush.PushService pushService;
     /** 自定义 HTTP 客户端：连接 / 读取超时 + 连接池上限（web-push 默认客户端无超时） */
@@ -104,7 +109,7 @@ public class WebPushService {
                           PushDeliveryLogRepository deliveryLogs,
                           UserDeviceRepository devices,
                           EventRepository events, MetaRepository meta,
-                          VapidKeys vapidKeys,
+                          VapidKeys vapidKeys, DeviceAuthService deviceAuth,
                           @Value("${idolcal.push.send-concurrency:8}") int sendConcurrency) throws GeneralSecurityException {
         this.subscriptions = subscriptions;
         this.deliveryLogs = deliveryLogs;
@@ -112,6 +117,7 @@ public class WebPushService {
         this.events = events;
         this.meta = meta;
         this.vapidKeys = vapidKeys;
+        this.deviceAuth = deviceAuth;
         this.pushService = new nl.martijndwars.webpush.PushService(
                 vapidKeys.publicKey(), vapidKeys.privateKey(), VapidKeys.SUBJECT);
         int n = Math.max(1, sendConcurrency);
@@ -153,12 +159,29 @@ public class WebPushService {
         return vapidKeys.publicKey();
     }
 
+    @PostConstruct
+    void loadTypeLabels() {
+        this.typeLabelCache = typeLabelsFromDb();
+        log.info("[push] 活动类型标签已加载（{} 条）", typeLabelCache.size());
+    }
+
+    /** 管理端更新 meta 后调用：重载类型标签缓存 */
+    public void invalidateTypeLabels() {
+        this.typeLabelCache = typeLabelsFromDb();
+    }
+
     // ---- 订阅管理 ----
 
-    /** 保存 / 更新订阅（同 endpoint 视为同一设备重新订阅，覆盖密钥）；同步注册设备记录 */
-    public void subscribe(String deviceId, String endpoint, String p256dh, String auth, String userAgent) {
-        PushSubscription sub = subscriptions.findByEndpoint(endpoint)
-                .orElseGet(PushSubscription::new);
+    /**
+     * 保存 / 更新订阅（同 endpoint 视为同一设备重新订阅，覆盖密钥）；同步注册设备记录。
+     * endpoint 已属于其他设备时拒绝覆盖（防劫持）；返回该设备的 HMAC 所有权凭证。
+     */
+    public String subscribe(String deviceId, String endpoint, String p256dh, String auth, String userAgent) {
+        PushSubscription existing = subscriptions.findByEndpoint(endpoint).orElse(null);
+        if (existing != null && !existing.getDeviceId().equals(deviceId)) {
+            throw new ConflictException("Subscription endpoint already owned by another device");
+        }
+        PushSubscription sub = existing != null ? existing : new PushSubscription();
         sub.setDeviceId(deviceId);
         sub.setEndpoint(endpoint);
         sub.setP256dh(p256dh);
@@ -167,6 +190,7 @@ public class WebPushService {
         subscriptions.save(sub);
         registerDevice(deviceId, userAgent);
         log.info("[push] 订阅已保存 deviceId={}", deviceId);
+        return deviceAuth.issueCredential(deviceId);
     }
 
     public void unsubscribe(String deviceId, String endpoint) {
@@ -393,7 +417,7 @@ public class WebPushService {
 
     /** 通知内容：标题 + 开始时间 + 直达活动页（icon / badge / eventId 齐全）；Fan-out 批次共用一份 */
     public byte[] payloadFor(Event e) {
-        String typeLabel = typeLabels().getOrDefault(e.getType(), e.getType());
+        String typeLabel = typeLabelCache.getOrDefault(e.getType(), e.getType());
         String title = typeLabel + " · " + e.getTitleZh();
         String body;
         if (e.getTime() == null || e.getTime().isBlank() || "00:00".equals(e.getTime())) {
@@ -416,8 +440,8 @@ public class WebPushService {
         }
     }
 
-    /** meta.eventTypes JSON → typeId → 中文标签 */
-    private Map<String, String> typeLabels() {
+    /** meta.eventTypes JSON → typeId → 中文标签（启动时加载 / 写操作重载，不在发送路径查库） */
+    private Map<String, String> typeLabelsFromDb() {
         Map<String, String> map = new HashMap<>();
         try {
             Meta m = meta.findById("eventTypes").orElse(null);

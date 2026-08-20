@@ -43,6 +43,13 @@ export function diffDays(dateKey1, dateKey2) {
   return Math.round((parseDateKey(dateKey2) - parseDateKey(dateKey1)) / MS_DAY)
 }
 
+/** YYYY-MM-DD + n 天（纯日期运算，用 UTC 避免本地时区边界干扰） */
+export function addDaysKey(dateKey, n) {
+  const [y, m, d] = dateKey.split('-').map(Number)
+  const t = new Date(Date.UTC(y, m - 1, d + n))
+  return formatDate(t.getUTCFullYear(), t.getUTCMonth() + 1, t.getUTCDate())
+}
+
 /** 距某天的倒计时：今天为 D-DAY，明天为 D-1，未来为 D+n */
 export function dDayLabel(dateKey) {
   const diff = diffDays(todayKey(), dateKey)

@@ -9,6 +9,9 @@ import { reminderOffsetMinutes } from './time'
 const API_BASE = import.meta.env.VITE_API_BASE || ''
 const SW_PATH = '/sw.js'
 const DEVICE_KEY = 'idolcal-device-id'
+// 设备所有权凭证（subscribe 时由后端签发 HMAC 签名，写请求携带防越权）
+const CREDENTIAL_KEY = 'idolcal-device-credential'
+const CREDENTIAL_HEADER = 'X-Device-Token'
 
 // ---- 能力检测（Android / iOS 分流依据）----
 
@@ -35,7 +38,7 @@ export function isIOSPushReady() {
   return isIOS() && isStandalone()
 }
 
-// ---- 设备标识（无登录体系，匿名 UUID 作设备锚点）----
+// ---- 设备标识与所有权凭证（无登录体系，匿名 UUID 作设备锚点）----
 
 export function getDeviceId() {
   let id = localStorage.getItem(DEVICE_KEY)
@@ -48,12 +51,99 @@ export function getDeviceId() {
   return id
 }
 
+/** 设备凭证（subscribe 响应签发）；未开启过推送或凭证已失效时为 null */
+export function getDeviceCredential() {
+  return localStorage.getItem(CREDENTIAL_KEY)
+}
+
+function saveDeviceCredential(credential) {
+  if (credential) localStorage.setItem(CREDENTIAL_KEY, credential)
+}
+
+/** 凭证失效（后端 401）时清除，用户重新开启推送即可换发 */
+export function clearDeviceCredential() {
+  localStorage.removeItem(CREDENTIAL_KEY)
+}
+
+/** 写请求凭证头：X-Device-Token: <deviceId>.<signature>；无凭证返回 null */
+function credentialHeader(deviceId) {
+  const credential = getDeviceCredential()
+  return credential ? `${deviceId}.${credential}` : null
+}
+
 // ---- 内部请求封装 ----
 
-async function api(path, options) {
-  const res = await fetch(`${API_BASE}${path}`, options)
-  if (!res.ok) throw new Error(`Push API ${path} → ${res.status}`)
-  return res.json()
+/** 结构化推送 API 错误（含 HTTP 状态 / 可重试标记，便于展示与自动重试判断） */
+export class PushApiError extends Error {
+  constructor(message, { path, status, retryable = false } = {}) {
+    super(message)
+    this.name = 'PushApiError'
+    this.path = path
+    this.status = status
+    this.retryable = retryable
+  }
+}
+
+const REQUEST_TIMEOUT_MS = 10_000
+const MAX_RETRIES = 1 // 网络抖动 / 超时 / 5xx / 429 重试 1 次；4xx（除 429）直接失败
+
+async function api(path, options = {}) {
+  let lastError
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    const ctrl = new AbortController()
+    const timer = setTimeout(() => ctrl.abort(), REQUEST_TIMEOUT_MS)
+    try {
+      const res = await fetch(`${API_BASE}${path}`, { ...options, signal: ctrl.signal })
+      if (res.ok) return res.json()
+      let message = `HTTP ${res.status}`
+      try {
+        const body = await res.json()
+        if (body && body.message) message = body.message
+      } catch {
+        /* 非 JSON 错误体：保留状态码描述 */
+      }
+      throw new PushApiError(message, {
+        path,
+        status: res.status,
+        retryable: res.status >= 500 || res.status === 429
+      })
+    } catch (e) {
+      if (e instanceof PushApiError) {
+        if (!e.retryable || attempt === MAX_RETRIES) throw e
+        lastError = e
+      } else if (attempt === MAX_RETRIES) {
+        // 网络错误 / 超时（AbortError）：重试耗尽后抛结构化错误
+        const timedOut = e && e.name === 'AbortError'
+        throw new PushApiError(timedOut ? `请求超时（${REQUEST_TIMEOUT_MS / 1000}s）` : '网络请求失败', {
+          path,
+          retryable: true
+        })
+      } else {
+        lastError = e
+      }
+    } finally {
+      clearTimeout(timer)
+    }
+  }
+  throw lastError
+}
+
+/** 附带设备凭证头的写请求（凭证缺失时直接失败，由调用方提示重新开启推送） */
+async function authedApi(deviceId, path, options = {}) {
+  const header = credentialHeader(deviceId)
+  if (!header) {
+    throw new PushApiError('设备凭证缺失，请重新开启推送', { path, retryable: false })
+  }
+  try {
+    return await api(path, {
+      ...options,
+      headers: { ...(options.headers || {}), [CREDENTIAL_HEADER]: header }
+    })
+  } catch (e) {
+    // 凭证已失效（密钥轮换 / 服务重启）：清除，用户重新开启推送即可换发
+    if (e instanceof PushApiError && e.status === 401) clearDeviceCredential()
+    throw e
+  }
 }
 
 // ---- 订阅 / 退订 ----
@@ -77,9 +167,15 @@ function urlBase64ToUint8Array(base64url) {
   return Uint8Array.from(bin, (c) => c.charCodeAt(0))
 }
 
-/** CryptoKey 二进制 → base64 字符串（后端存 p256dh / auth） */
+/** CryptoKey 二进制 → base64 字符串（后端存 p256dh / auth）；分块转换避免大数组展开栈溢出 */
 function keyToBase64(key) {
-  return btoa(String.fromCharCode(...new Uint8Array(key)))
+  const bytes = new Uint8Array(key)
+  let bin = ''
+  const CHUNK = 0x8000 // String.fromCharCode.apply 安全块大小（32K）
+  for (let i = 0; i < bytes.length; i += CHUNK) {
+    bin += String.fromCharCode.apply(null, bytes.subarray(i, i + CHUNK))
+  }
+  return btoa(bin)
 }
 
 /**
@@ -105,7 +201,7 @@ export async function subscribePush(deviceId) {
 }
 
 async function reportSubscription(deviceId, sub) {
-  await api('/api/push/subscribe', {
+  const { credential } = await api('/api/push/subscribe', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -115,15 +211,17 @@ async function reportSubscription(deviceId, sub) {
       auth: keyToBase64(sub.getKey('auth'))
     })
   })
+  // 保存后端签发的设备凭证（重新订阅 / 凭证换发时更新）
+  saveDeviceCredential(credential)
 }
 
-/** 关闭推送：先通知后端删除订阅，再浏览器侧退订 */
+/** 关闭推送：先通知后端删除订阅（需设备凭证），再浏览器侧退订 */
 export async function unsubscribePush(deviceId) {
   const reg = swRegPromise ? await swRegPromise.catch(() => null) : null
   const sub = reg ? await reg.pushManager.getSubscription() : null
   if (sub) {
     try {
-      await api('/api/push/subscribe', {
+      await authedApi(deviceId, '/api/push/subscribe', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ deviceId, endpoint: sub.endpoint })
@@ -150,7 +248,7 @@ export async function syncReminders(deviceId, reminders) {
       return { eventId: r.eventId, offsetMinutes }
     })
     .filter(Boolean)
-  await api('/api/push/reminders', {
+  await authedApi(deviceId, '/api/push/reminders', {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ deviceId, reminders: items })
@@ -159,7 +257,7 @@ export async function syncReminders(deviceId, reminders) {
 
 /** 发送测试通知（需已开启推送） */
 export async function sendTestPush(deviceId) {
-  await api('/api/push/send-test', {
+  await authedApi(deviceId, '/api/push/send-test', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ deviceId })

@@ -1,5 +1,6 @@
 package com.example.bim.api.web;
 
+import com.example.bim.api.auth.AdminOnly;
 import com.example.bim.api.dto.ComebackDto;
 import com.example.bim.api.service.ComebackService;
 import jakarta.validation.Valid;
@@ -42,17 +43,20 @@ public class ComebackController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @AdminOnly
     public ComebackDto create(@Valid @RequestBody ComebackDto dto) {
         return service.create(dto);
     }
 
     @PutMapping("/{id}")
+    @AdminOnly
     public ComebackDto update(@PathVariable String id, @Valid @RequestBody ComebackDto dto) {
         return service.update(id, dto);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @AdminOnly
     public void delete(@PathVariable String id) {
         service.delete(id);
     }
