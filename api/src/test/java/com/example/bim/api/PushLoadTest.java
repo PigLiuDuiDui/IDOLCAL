@@ -1,11 +1,10 @@
 package com.example.bim.api;
 
 import com.example.bim.api.entity.Event;
-import com.example.bim.api.entity.PushDeliveryLog;
 import com.example.bim.api.entity.PushSchedule;
 import com.example.bim.api.entity.PushSubscription;
 import com.example.bim.api.entity.PushTask;
-import com.example.bim.api.entity.PushTaskStatus;
+import com.example.bim.api.Enum.PushTaskStatus;
 import com.example.bim.api.repository.EventRepository;
 import com.example.bim.api.repository.PushScheduleRepository;
 import com.example.bim.api.repository.PushSubscriptionRepository;
@@ -30,7 +29,6 @@ import java.nio.file.Paths;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.SecureRandom;
-import java.security.Security;
 import java.security.spec.ECGenParameterSpec;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -39,9 +37,7 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 

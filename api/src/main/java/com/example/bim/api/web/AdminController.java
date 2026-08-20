@@ -4,7 +4,7 @@ import com.example.bim.api.auth.AdminOnly;
 import com.example.bim.api.auth.AuthService;
 import com.example.bim.api.dto.AdminLoginRequest;
 import com.example.bim.api.entity.PushSchedule;
-import com.example.bim.api.entity.PushTaskStatus;
+import com.example.bim.api.Enum.PushTaskStatus;
 import com.example.bim.api.repository.PushDeliveryLogRepository;
 import com.example.bim.api.repository.PushScheduleRepository;
 import com.example.bim.api.repository.PushTaskRepository;

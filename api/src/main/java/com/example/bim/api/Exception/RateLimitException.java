@@ -1,4 +1,4 @@
-package com.example.bim.api.ratelimit;
+package com.example.bim.api.Exception;
 
 /** 限流拒绝：由全局异常处理器转 429 + Retry-After */
 public class RateLimitException extends RuntimeException {

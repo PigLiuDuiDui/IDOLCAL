@@ -4,7 +4,7 @@ import com.example.bim.api.entity.Event;
 import com.example.bim.api.entity.PushSchedule;
 import com.example.bim.api.entity.PushSubscription;
 import com.example.bim.api.entity.PushTask;
-import com.example.bim.api.entity.PushTaskStatus;
+import com.example.bim.api.Enum.PushTaskStatus;
 import com.example.bim.api.repository.EventRepository;
 import com.example.bim.api.repository.PushScheduleRepository;
 import com.example.bim.api.repository.PushSubscriptionRepository;

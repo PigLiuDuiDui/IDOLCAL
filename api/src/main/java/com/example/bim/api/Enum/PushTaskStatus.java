@@ -1,4 +1,4 @@
-package com.example.bim.api.entity;
+package com.example.bim.api.Enum;
 
 /**
  * 推送任务状态机：

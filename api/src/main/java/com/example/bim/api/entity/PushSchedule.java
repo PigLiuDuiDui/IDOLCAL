@@ -1,5 +1,6 @@
 package com.example.bim.api.entity;
 
+import com.example.bim.api.Enum.PushTaskStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

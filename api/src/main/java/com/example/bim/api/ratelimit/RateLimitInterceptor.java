@@ -1,5 +1,6 @@
 package com.example.bim.api.ratelimit;
 
+import com.example.bim.api.Exception.RateLimitException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.util.AntPathMatcher;

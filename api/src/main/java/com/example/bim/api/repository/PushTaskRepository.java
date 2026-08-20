@@ -1,7 +1,7 @@
 package com.example.bim.api.repository;
 
 import com.example.bim.api.entity.PushTask;
-import com.example.bim.api.entity.PushTaskStatus;
+import com.example.bim.api.Enum.PushTaskStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
