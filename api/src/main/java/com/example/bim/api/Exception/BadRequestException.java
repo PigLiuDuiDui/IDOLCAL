@@ -1,4 +1,4 @@
-package com.example.bim.api.web;
+package com.example.bim.api.Exception;
 
 /** 请求数据不合法 / 冲突 → 400 */
 public class BadRequestException extends RuntimeException {

@@ -3,7 +3,7 @@ package com.example.bim.api.service;
 import com.example.bim.api.entity.Comeback;
 import com.example.bim.api.entity.ComebackStage;
 import com.example.bim.api.repository.ComebackRepository;
-import com.example.bim.api.web.NotFoundException;
+import com.example.bim.api.Exception.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

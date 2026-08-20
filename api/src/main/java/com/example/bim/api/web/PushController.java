@@ -1,5 +1,6 @@
 package com.example.bim.api.web;
 
+import com.example.bim.api.Exception.BadRequestException;
 import com.example.bim.api.dto.PushRemindersRequest;
 import com.example.bim.api.dto.PushSendTestRequest;
 import com.example.bim.api.dto.PushSubscribeRequest;

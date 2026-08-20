@@ -12,7 +12,7 @@ import com.example.bim.api.repository.MetaRepository;
 import com.example.bim.api.repository.PushDeliveryLogRepository;
 import com.example.bim.api.repository.PushSubscriptionRepository;
 import com.example.bim.api.repository.UserDeviceRepository;
-import com.example.bim.api.web.ConflictException;
+import com.example.bim.api.Exception.ConflictException;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.apache.http.client.config.RequestConfig;

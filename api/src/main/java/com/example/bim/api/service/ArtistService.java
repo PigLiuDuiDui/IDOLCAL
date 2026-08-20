@@ -4,8 +4,8 @@ import com.example.bim.api.dto.ArtistDto;
 import com.example.bim.api.entity.Artist;
 import com.example.bim.api.repository.ArtistRepository;
 import com.example.bim.api.repository.EventRepository;
-import com.example.bim.api.web.BadRequestException;
-import com.example.bim.api.web.NotFoundException;
+import com.example.bim.api.Exception.BadRequestException;
+import com.example.bim.api.Exception.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

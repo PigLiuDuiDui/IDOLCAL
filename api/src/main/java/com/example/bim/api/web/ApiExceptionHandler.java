@@ -1,5 +1,9 @@
 package com.example.bim.api.web;
 
+import com.example.bim.api.Exception.BadRequestException;
+import com.example.bim.api.Exception.ConflictException;
+import com.example.bim.api.Exception.NotFoundException;
+import com.example.bim.api.Exception.UnauthorizedException;
 import com.example.bim.api.ratelimit.RateLimitException;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;

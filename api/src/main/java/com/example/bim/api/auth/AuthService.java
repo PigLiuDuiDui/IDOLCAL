@@ -2,7 +2,7 @@ package com.example.bim.api.auth;
 
 import com.example.bim.api.entity.User;
 import com.example.bim.api.repository.UserRepository;
-import com.example.bim.api.web.UnauthorizedException;
+import com.example.bim.api.Exception.UnauthorizedException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 

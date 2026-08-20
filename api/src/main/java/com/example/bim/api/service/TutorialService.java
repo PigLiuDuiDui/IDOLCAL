@@ -3,12 +3,11 @@ package com.example.bim.api.service;
 import com.example.bim.api.dto.TutorialDto;
 import com.example.bim.api.entity.Tutorial;
 import com.example.bim.api.repository.TutorialRepository;
-import com.example.bim.api.web.BadRequestException;
-import com.example.bim.api.web.NotFoundException;
+import com.example.bim.api.Exception.BadRequestException;
+import com.example.bim.api.Exception.NotFoundException;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.node.ArrayNode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

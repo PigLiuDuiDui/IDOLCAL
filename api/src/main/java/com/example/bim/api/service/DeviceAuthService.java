@@ -1,7 +1,7 @@
 package com.example.bim.api.service;
 
 import com.example.bim.api.auth.JwtUtil;
-import com.example.bim.api.web.UnauthorizedException;
+import com.example.bim.api.Exception.UnauthorizedException;
 import org.springframework.stereotype.Service;
 
 /**
