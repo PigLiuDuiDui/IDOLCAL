@@ -43,6 +43,10 @@ public class Event {
     @Column(length = 8)
     private String timezone;
 
+    /** 开始时刻 UTC epoch millis（后端计算：date + time + timezone；全天无时刻为 null） */
+    @Column(name = "start_at_utc")
+    private Long startAtUtc;
+
     @Column(nullable = false, length = 200)
     private String titleEn;
 

@@ -25,7 +25,8 @@ export default {
     officialArchive: '官方档案 — {year}',
     currentEra: '当前时期',
     nextEvent: '下一活动',
-    clickForDetails: '点击查看详情'
+    clickForDetails: '点击查看详情',
+    remindButton: '设置提醒'
   },
   subscribe: {
     button: '订阅日历',
@@ -40,7 +41,10 @@ export default {
     stepAndroid: '安卓：复制链接 → 打开日历 App → 添加订阅（各机型入口略有不同）',
     localHint: '当前为本地预览模式，链接仅本机可用；部署上线后自动变为正式订阅链接。',
     deployHint: '把上面的订阅链接发给粉丝，添加一次即可永久自动同步。',
-    close: '关闭'
+    close: '关闭',
+    alarmLabel: '下载提醒时间',
+    alarmNone: '不提醒',
+    alarmStatic: '订阅日历为站点统一文件，内置固定提醒；下载 .ics 可单独为每个活动自定义提醒时间。'
   },
   calendar: {
     prevMonth: '上一月',
@@ -73,6 +77,7 @@ export default {
     confirm: '设置提醒',
     update: '更新提醒',
     cancel: '取消提醒',
+    close: '关闭',
     setAt: '已设置提醒：{at}',
     noTime: '该活动尚未确认开始时间。',
     options: {
@@ -80,18 +85,61 @@ export default {
       '3h': '3 小时前',
       '1h': '1 小时前',
       '30m': '30 分钟前',
-      start: '活动开始时'
-    }
+      start: '活动开始时',
+      custom: '自定义'
+    },
+    units: {
+      minute: '分钟',
+      hour: '小时',
+      day: '天'
+    },
+    customHint: '提前 5 分钟至 30 天',
+    beforeMin: '{n} 分钟前',
+    beforeHour: '{n} 小时前',
+    beforeDay: '{n} 天前'
   },
   reminders: {
     eyebrow: '我的提醒',
-    sub: '集中查看所有已设置的活动提醒。提醒保存在浏览器本地，系统级通知将在 PWA 更新中上线。',
+    sub: '集中查看所有已设置的活动提醒。开启系统推送后，即使不打开网站也会收到通知。',
+    groupToday: '今天',
+    groupTomorrow: '明天',
+    groupUpcoming: '即将到来',
     alertAt: '提醒时间',
     cancel: '取消',
     emptyTitle: '还没有提醒',
     emptyDesc: '打开任意活动，点击「提醒我」即可在活动开始前收到提醒。',
     browse: '浏览日程',
-    note: '提醒基于活动官方时区计算，并转换为你所在时区显示。'
+    note: '提醒基于活动官方时区计算，并转换为你所在时区显示。',
+    select: '选择',
+    selectAll: '全选',
+    selected: '已选 {n} 项',
+    batchSet: '批量设置',
+    batchCancel: '取消所选提醒',
+    batchTitle: '批量设置提醒时间',
+    batchDesc: '为选中的 {n} 条提醒统一设置：',
+    applied: '已更新 {n} 条提醒',
+    noSelection: '请先勾选要批量设置的提醒',
+    apply: '应用',
+    done: '完成'
+  },
+  push: {
+    eyebrow: '推送通知',
+    title: '系统级推送',
+    desc: '开启后即使不打开网站，也能在活动开始前收到系统通知。',
+    on: '推送已开启',
+    off: '推送未开启',
+    enable: '开启推送',
+    disable: '关闭推送',
+    busy: '处理中…',
+    test: '发送测试通知',
+    testing: '发送中…',
+    sent: '测试通知已发送',
+    failed: '操作失败：{msg}',
+    unsupported: '当前浏览器不支持 Web Push 通知，建议使用最新版 Chrome / Edge / Safari。',
+    iosGuide: 'iPhone / iPad 需先在 Safari 中把本站「添加到主屏幕」，再从主屏幕图标打开，才能开启推送。',
+    iosGuide2: '打开 Safari → 分享按钮 → 「添加到主屏幕」',
+    androidHint: '点击下方按钮后，浏览器会弹出授权请求，请选择「允许」。',
+    needReminders: '为任意活动设置提醒后，系统会按你的提醒时间推送通知。'
   },
   timezone: {
     select: '选择时区',

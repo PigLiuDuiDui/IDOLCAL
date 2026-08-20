@@ -11,6 +11,8 @@ const router = createRouter({
   history: createWebHashHistory(),
   routes: [
     { path: '/', name: 'schedule', component: ScheduleView, meta: { title: 'Schedule' } },
+    // 通知点击直达：/#/event/{id} → 打开活动详情抽屉（ScheduleView 挂载时读取并打开）
+    { path: '/event/:id', name: 'event', component: ScheduleView, meta: { title: 'Event' } },
     { path: '/comeback', name: 'comeback', component: ComebackView, meta: { title: 'Comeback' } },
     { path: '/reminders', name: 'reminders', component: RemindersView, meta: { title: 'Reminders' } },
     { path: '/timeline', name: 'timeline', component: TimelineView, meta: { title: 'Timeline' } },

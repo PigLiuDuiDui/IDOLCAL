@@ -5,8 +5,15 @@ node_modules/
 dist/
 *.local
 
-# 推送密钥（含 webhook / SendKey，切勿提交）
+# 数据库文件（H2 / 开发数据，切勿提交）
+api/data/
+*.mv.db
+*.trace.db
+api/target/
+
+# 推送密钥（含 webhook / SendKey / VAPID，切勿提交）
 scripts/.env
+api/.vapid-keys
 
 # 编辑器 / 系统
 .vscode/

@@ -51,6 +51,8 @@ public class RateLimitConfig implements WebMvcConfigurer {
     @Bean
     public List<RateLimitRule> rateLimitRules() {
         return List.of(
+                // 管理员登录：10 次/分钟/IP（更严格；另有连续失败锁定兜底）
+                new RateLimitRule("/api/admin/login", Set.of("POST"), 10, 60),
                 // 列表 / 元数据：60 次/分钟/IP
                 new RateLimitRule("/api/events", Set.of("GET"), 60, 60),
                 new RateLimitRule("/api/meta", Set.of("GET"), 60, 60),

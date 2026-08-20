@@ -17,6 +17,11 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const API_BASE = process.env.IDOLCAL_API || 'http://localhost:8080'
 
+// 订阅文件统一提醒：IDOLCAL_ICS_ALARM_MINUTES（活动开始前分钟数，默认 60），
+// 设为 0 或非数字则不带提醒；每个 VEVENT 都会生成 VALARM
+const ALARM_MINUTES = Number(process.env.IDOLCAL_ICS_ALARM_MINUTES ?? 60)
+const ALARM_ENABLED = Number.isFinite(ALARM_MINUTES) && ALARM_MINUTES > 0
+
 async function getJson(apiPath) {
   const res = await fetch(`${API_BASE}${apiPath}`)
   if (!res.ok) throw new Error(`API ${apiPath} → ${res.status}`)
@@ -119,7 +124,19 @@ function eventLines(e) {
   ]
   if (t(e.location)) lines.push(`LOCATION:${esc(t(e.location))}`)
   if (e.sourceUrl) lines.push(`URL:${esc(e.sourceUrl)}`)
-  lines.push(`STATUS:${status}`, 'END:VEVENT')
+  lines.push(`STATUS:${status}`)
+
+  // 统一提醒（构建时配置，所有活动一致；前端下载可另行自定义）
+  if (ALARM_ENABLED) {
+    lines.push(
+      'BEGIN:VALARM',
+      'ACTION:DISPLAY',
+      `DESCRIPTION:${esc(summary)}`,
+      `TRIGGER:-PT${ALARM_MINUTES}M`,
+      'END:VALARM'
+    )
+  }
+  lines.push('END:VEVENT')
   return lines
 }
 
@@ -146,4 +163,4 @@ const body = [
 const outPath = path.join(__dirname, '..', 'public', 'calendar.ics')
 mkdirSync(path.dirname(outPath), { recursive: true })
 writeFileSync(outPath, body + '\r\n', 'utf8')
-console.log(`[gen-ics] 已生成 ${outPath}（${events.length} 个活动）`)
+console.log(`[gen-ics] 已生成 ${outPath}（${events.length} 个活动${ALARM_ENABLED ? `，提醒提前 ${ALARM_MINUTES} 分钟` : '，无提醒'}）`)

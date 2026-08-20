@@ -25,7 +25,8 @@ export default {
     officialArchive: 'Official Archive — {year}',
     currentEra: 'CURRENT ERA',
     nextEvent: 'Next Event',
-    clickForDetails: 'Click for details'
+    clickForDetails: 'Click for details',
+    remindButton: 'Set reminder'
   },
   subscribe: {
     button: 'Subscribe Calendar',
@@ -40,7 +41,10 @@ export default {
     stepAndroid: 'Android: copy the link → open your calendar app → add subscription (entry varies by device)',
     localHint: 'Local preview mode: the link only works on this device until the site is deployed.',
     deployHint: 'Share the link with fans — subscribe once, synced forever.',
-    close: 'Close'
+    close: 'Close',
+    alarmLabel: 'Download alarm',
+    alarmNone: 'No alarm',
+    alarmStatic: 'The subscription link is a fixed file with a built-in default alarm. Download .ics to set a custom alarm per event.'
   },
   calendar: {
     prevMonth: 'Previous month',
@@ -73,6 +77,7 @@ export default {
     confirm: 'Set reminder',
     update: 'Update',
     cancel: 'Cancel reminder',
+    close: 'Close',
     setAt: 'Reminder set for {at}',
     noTime: 'This event has no confirmed start time yet.',
     options: {
@@ -80,18 +85,61 @@ export default {
       '3h': '3 hours before',
       '1h': '1 hour before',
       '30m': '30 minutes before',
-      start: 'At start time'
-    }
+      start: 'At start time',
+      custom: 'Custom'
+    },
+    units: {
+      minute: 'min',
+      hour: 'hr',
+      day: 'day'
+    },
+    customHint: '5 minutes to 30 days before',
+    beforeMin: '{n} min before',
+    beforeHour: '{n} hr before',
+    beforeDay: '{n} day before'
   },
   reminders: {
     eyebrow: 'My Reminders',
-    sub: 'All your event reminders in one place. They are stored locally in your browser \u2014 system-level notifications arrive with the upcoming PWA update.',
+    sub: 'All your event reminders in one place. Enable system push to keep getting alerts even when the site is closed.',
+    groupToday: 'Today',
+    groupTomorrow: 'Tomorrow',
+    groupUpcoming: 'Upcoming',
     alertAt: 'Alert',
     cancel: 'Remove',
     emptyTitle: 'No reminders yet',
     emptyDesc: 'Open any event and tap \u201cRemind me\u201d to get an alert before it starts.',
     browse: 'Browse schedule',
-    note: 'Reminders are calculated from the official event timezone and shown in your local time.'
+    note: 'Reminders are calculated from the official event timezone and shown in your local time.',
+    select: 'Select',
+    selectAll: 'Select all',
+    selected: '{n} selected',
+    batchSet: 'Batch set',
+    batchCancel: 'Remove selected',
+    batchTitle: 'Batch set reminder time',
+    batchDesc: 'Apply to {n} selected reminders:',
+    applied: 'Updated {n} reminders',
+    noSelection: 'Select reminders first',
+    apply: 'Apply',
+    done: 'Done'
+  },
+  push: {
+    eyebrow: 'Push Notifications',
+    title: 'System push alerts',
+    desc: 'Get a system notification before an event starts — even when the site is closed.',
+    on: 'Push is on',
+    off: 'Push is off',
+    enable: 'Enable push',
+    disable: 'Disable push',
+    busy: 'Working…',
+    test: 'Send test notification',
+    testing: 'Sending…',
+    sent: 'Test notification sent',
+    failed: 'Failed: {msg}',
+    unsupported: 'Web Push is not supported in this browser. Try the latest Chrome, Edge or Safari.',
+    iosGuide: 'On iPhone / iPad, add this site to your Home Screen in Safari first, then open it from the Home Screen icon to enable push.',
+    iosGuide2: 'Safari → Share button → “Add to Home Screen”',
+    androidHint: 'After tapping the button, the browser will ask for permission — choose “Allow”.',
+    needReminders: 'Once you set a reminder for any event, push alerts will fire at your chosen time.'
   },
   timezone: {
     select: 'Select timezone',

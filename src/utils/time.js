@@ -192,28 +192,68 @@ export function diffDaysKey(dateKey1, dateKey2) {
   )
 }
 
-// ---- 提醒偏移选项（1天前 / 3小时前 / 1小时前 / 30分钟前 / 开始时）----
+// ---- 提醒偏移选项（1天前 / 3小时前 / 1小时前 / 30分钟前 / 开始时 / 自定义）----
 // 注意：Instant.subtract 不支持日历单位（days），1 天用 24 小时表示（绝对时刻，无 DST 歧义）
+// custom 为动态偏移：分钟数由用户输入（见 CUSTOM_OFFSET_MIN / MAX）
 export const REMINDER_OFFSETS = [
   { id: '1d', delta: { hours: 24 } },
   { id: '3h', delta: { hours: 3 } },
   { id: '1h', delta: { hours: 1 } },
   { id: '30m', delta: { minutes: 30 } },
-  { id: 'start', delta: null }
+  { id: 'start', delta: null },
+  { id: 'custom', delta: null, custom: true }
 ]
 
-/** 提醒触发时刻（Instant，基于官方时区计算后减去偏移） */
-export function getReminderInstant(event, offsetId) {
+/** 自定义提醒偏移范围（分钟）：5 分钟 ~ 30 天 */
+export const CUSTOM_OFFSET_MIN = 5
+export const CUSTOM_OFFSET_MAX = 30 * 24 * 60
+
+/**
+ * 提醒触发时刻（Instant，基于官方时区计算后减去偏移）
+ * @param {string} [offsetMinutes] custom 偏移的分钟数（必填）
+ */
+export function getReminderInstant(event, offsetId, offsetMinutes) {
   const start = getEventStart(event)
   if (!start) return null
+  if (offsetId === 'custom') {
+    const m = Number(offsetMinutes)
+    if (!Number.isFinite(m) || m <= 0) return null
+    return start.toInstant().subtract({ minutes: m })
+  }
   const offset = REMINDER_OFFSETS.find((o) => o.id === offsetId)
   if (!offset || !offset.delta) return start.toInstant()
   return start.toInstant().subtract(offset.delta)
 }
 
-/** 提醒触发时刻 → 显示时区格式化（'09.07 · 18:00 JST'） */
-export function formatReminderAt(event, offsetId, displayZone) {
-  const instant = getReminderInstant(event, offsetId)
+/**
+ * 提醒配置（store 条目）→ 活动开始前分钟数；
+ * 'start' → 0；无效配置 → null。订阅日历 VALARM 与批量显示共用。
+ */
+export function reminderOffsetMinutes(reminder) {
+  if (!reminder) return null
+  if (reminder.offset === 'custom') {
+    const m = Number(reminder.offsetMinutes)
+    return Number.isFinite(m) && m > 0 ? m : null
+  }
+  if (reminder.offset === 'start') return 0
+  const offset = REMINDER_OFFSETS.find((o) => o.id === reminder.offset)
+  if (!offset?.delta) return null
+  const { hours = 0, minutes = 0 } = offset.delta
+  return hours * 60 + minutes
+}
+
+/** 提前分钟数 → 显示单位（整日/整小时优先，否则分钟）；无效返回 null */
+export function minutesToParts(minutes) {
+  const m = Number(minutes)
+  if (!Number.isFinite(m) || m <= 0) return null
+  if (m % 1440 === 0) return { value: m / 1440, unit: 'day' }
+  if (m % 60 === 0) return { value: m / 60, unit: 'hour' }
+  return { value: m, unit: 'minute' }
+}
+
+/** 提醒触发时刻 → 显示时区格式化（'09.07 · 18:00 JST'）；custom 偏移需传 offsetMinutes */
+export function formatReminderAt(event, offsetId, displayZone, offsetMinutes) {
+  const instant = getReminderInstant(event, offsetId, offsetMinutes)
   if (!instant) return null
   const zdt = instant.toZonedDateTimeISO(displayZone)
   const date = `${zdt.year}-${String(zdt.month).padStart(2, '0')}-${String(zdt.day).padStart(2, '0')}`

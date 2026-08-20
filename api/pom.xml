@@ -58,10 +58,47 @@
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
 
+        <!-- 通知调度：Quartz 精确到秒的触发（替代每分钟轮询；任务状态落库可恢复） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-quartz</artifactId>
+        </dependency>
+
+        <!-- 生产数据库：PostgreSQL（默认开发仍用 H2 文件库，设置 IDOLCAL_DB_URL 即切换） -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- 数据库版本管理：Flyway（schema 唯一事实来源；开发 H2 / 生产 PostgreSQL 均由迁移脚本建表，
+             ddl-auto=none 后改表必须写迁移脚本；Flyway 12 中 H2 支持内置 core，PostgreSQL 为独立模块） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-flyway</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
+        </dependency>
+
         <!-- 请求参数校验（Bean Validation，配合 DTO 注解 + @Valid） -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <!-- Web Push 推送（VAPID 签名 + payload 加密 + Push Service 发送） -->
+        <dependency>
+            <groupId>nl.martijndwars</groupId>
+            <artifactId>web-push</artifactId>
+            <version>5.1.1</version>
+        </dependency>
+        <!-- web-push 的 BouncyCastle 为 provided 作用域，需显式引入（VAPID 椭圆曲线 + 加密） -->
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk18on</artifactId>
+            <version>1.78.1</version>
         </dependency>
 
         <dependency>
@@ -72,6 +109,19 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webmvc-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- 测试容器：PostgreSQL 迁移脚本真实验证（无 Docker 时 @Testcontainers(disabledWithoutDocker=true) 自动跳过；
+             Testcontainers 2.x 模块命名带 testcontainers- 前缀） -->
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers-postgresql</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers-junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

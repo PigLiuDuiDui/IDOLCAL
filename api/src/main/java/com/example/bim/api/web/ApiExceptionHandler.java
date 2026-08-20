@@ -32,6 +32,12 @@ public class ApiExceptionHandler {
         return build(HttpStatus.BAD_REQUEST, "BAD_REQUEST", e.getMessage());
     }
 
+    /** 未认证 / 未授权（管理后台权限）：401 */
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<Map<String, Object>> unauthorized(UnauthorizedException e) {
+        return build(HttpStatus.UNAUTHORIZED, "UNAUTHORIZED", e.getMessage());
+    }
+
     /** 限流拒绝：429 + Retry-After（剩余窗口秒数） */
     @ExceptionHandler(RateLimitException.class)
     public ResponseEntity<Map<String, Object>> rateLimit(RateLimitException e, HttpServletResponse response) {
@@ -58,6 +64,7 @@ public class ApiExceptionHandler {
     /** 请求体不可读（非法 JSON / 类型不匹配）：400 而非 500 */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<Map<String, Object>> unreadable(HttpMessageNotReadableException e) {
+        log.warn("Malformed request body: {}", e.getMostSpecificCause().getMessage());
         return build(HttpStatus.BAD_REQUEST, "INVALID_JSON", "Malformed request body");
     }
 

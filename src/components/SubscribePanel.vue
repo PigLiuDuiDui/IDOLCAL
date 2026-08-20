@@ -18,10 +18,70 @@
             </button>
           </div>
 
+          <!-- 下载提醒设置：已单独设置的提醒优先，其余用统一默认 -->
+          <div class="subscribe-alarm">
+            <p class="subscribe-alarm-label">{{ t('subscribe.alarmLabel') }}</p>
+            <div class="subscribe-alarm-options" role="radiogroup" :aria-label="t('subscribe.alarmLabel')">
+              <button
+                v-for="opt in alarmPresets"
+                :key="opt.id"
+                type="button"
+                role="radio"
+                :aria-checked="alarmSelected === opt.id"
+                class="subscribe-alarm-option"
+                :class="{ active: alarmSelected === opt.id }"
+                @click="alarmSelected = opt.id"
+              >
+                {{ t(`reminder.options.${opt.id}`) }}
+              </button>
+              <button
+                type="button"
+                role="radio"
+                :aria-checked="alarmSelected === 'custom'"
+                class="subscribe-alarm-option"
+                :class="{ active: alarmSelected === 'custom' }"
+                @click="alarmSelected = 'custom'"
+              >
+                {{ t('reminder.options.custom') }}
+              </button>
+              <button
+                type="button"
+                role="radio"
+                :aria-checked="alarmSelected === 'none'"
+                class="subscribe-alarm-option"
+                :class="{ active: alarmSelected === 'none' }"
+                @click="alarmSelected = 'none'"
+              >
+                {{ t('subscribe.alarmNone') }}
+              </button>
+            </div>
+
+            <div v-if="alarmSelected === 'custom'" class="subscribe-alarm-custom">
+              <input
+                v-model="alarmNum"
+                class="subscribe-alarm-num"
+                type="number"
+                min="1"
+                :max="alarmMax"
+                step="1"
+                inputmode="numeric"
+                :aria-label="t('reminder.options.custom')"
+              />
+              <select v-model="alarmUnit" class="subscribe-alarm-unit" :aria-label="t('reminder.units.hour')">
+                <option value="minute">{{ t('reminder.units.minute') }}</option>
+                <option value="hour">{{ t('reminder.units.hour') }}</option>
+                <option value="day">{{ t('reminder.units.day') }}</option>
+              </select>
+              <p class="subscribe-alarm-hint">{{ t('reminder.customHint') }}</p>
+            </div>
+
+            <p class="subscribe-alarm-static">{{ t('subscribe.alarmStatic') }}</p>
+          </div>
+
           <div class="subscribe-actions">
-            <a class="subscribe-download" :href="icsUrl" :download="`${artist.name.toLowerCase()}-schedule.ics`">
+            <button type="button" class="subscribe-download" @click="downloadIcs">
               {{ t('subscribe.download') }}
-            </a>
+            </button>
           </div>
 
           <ol class="subscribe-steps">
@@ -37,10 +97,14 @@
 </template>
 
 <script setup>
-// 日历订阅弹窗：webcal 订阅链接（自动适配部署域名）+ .ics 下载备用
+// 日历订阅弹窗：webcal 订阅链接（自动适配部署域名）+ .ics 动态下载（可自定义提醒）
+// 下载时每个活动优先使用已单独设置的提醒（提醒页），未设置的用面板统一默认
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useDataStore } from '../stores/data'
+import { useRemindersStore } from '../stores/reminders'
+import { REMINDER_OFFSETS, CUSTOM_OFFSET_MIN, CUSTOM_OFFSET_MAX, reminderOffsetMinutes } from '../utils/time'
+import { generateIcs } from '../utils/ics'
 
 defineProps({
   open: { type: Boolean, default: false }
@@ -49,7 +113,60 @@ const emit = defineEmits(['close'])
 
 const { t } = useI18n()
 const data = useDataStore()
+const reminders = useRemindersStore()
 const artist = computed(() => data.currentArtist)
+
+// ---- 下载提醒设置（默认 1 小时前；'none' 不加提醒） ----
+const alarmSelected = ref('1h')
+const alarmNum = ref('1')
+const alarmUnit = ref('hour')
+const alarmPresets = computed(() => REMINDER_OFFSETS.filter((o) => !o.custom))
+
+const alarmMinutes = computed(() => {
+  if (alarmSelected.value === 'none') return null
+  if (alarmSelected.value === 'custom') {
+    const n = Number(alarmNum.value)
+    if (!Number.isInteger(n) || n <= 0) return null
+    const mult = { minute: 1, hour: 60, day: 1440 }[alarmUnit.value]
+    if (!mult) return null
+    const m = n * mult
+    return m >= CUSTOM_OFFSET_MIN && m <= CUSTOM_OFFSET_MAX ? m : null
+  }
+  const map = { '1d': 1440, '3h': 180, '1h': 60, '30m': 30, start: 0 }
+  return map[alarmSelected.value] ?? null
+})
+
+const alarmMax = computed(() => {
+  const mult = { minute: 1, hour: 60, day: 1440 }[alarmUnit.value]
+  return Math.floor(CUSTOM_OFFSET_MAX / mult)
+})
+
+/** 每事件提醒分钟数：已单独设置的优先，否则用面板统一默认 */
+function alarmOf(event) {
+  const r = reminders.reminderOf(event.id)
+  if (r) return reminderOffsetMinutes(r)
+  return alarmMinutes.value
+}
+
+/** 动态生成 ICS 并触发浏览器下载 */
+function downloadIcs() {
+  if (!artist.value) return
+  const text = generateIcs({
+    events: data.events,
+    artist: artist.value,
+    typeLabel: data.TYPE_LABEL,
+    alarmMinutesOf: alarmOf
+  })
+  const blob = new Blob([text], { type: 'text/calendar;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `${artist.value.name.toLowerCase()}-schedule.ics`
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  URL.revokeObjectURL(url)
+}
 
 const close = () => emit('close')
 
@@ -213,6 +330,106 @@ async function copy() {
   opacity: 0.82;
 }
 
+/* 下载提醒设置 */
+.subscribe-alarm {
+  margin-bottom: 20px;
+  padding-top: 2px;
+}
+
+.subscribe-alarm-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.subscribe-alarm-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.subscribe-alarm-option {
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink-soft);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: all var(--dur) var(--ease);
+}
+
+.subscribe-alarm-option:hover {
+  border-color: var(--line-strong);
+}
+
+.subscribe-alarm-option.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+}
+
+.subscribe-alarm-custom {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  margin-bottom: 10px;
+}
+
+.subscribe-alarm-num {
+  width: 84px;
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: calc(var(--radius-sm) - 2px);
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.subscribe-alarm-num:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.subscribe-alarm-unit {
+  min-height: 34px;
+  padding: 0 8px;
+  border: 1px solid var(--line-strong);
+  border-radius: calc(var(--radius-sm) - 2px);
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.subscribe-alarm-hint {
+  width: 100%;
+  margin: 2px 0 0;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--ink-faint);
+}
+
+.subscribe-alarm-static {
+  font-size: 10px;
+  line-height: 1.7;
+  color: var(--ink-faint);
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  padding-top: 10px;
+}
+
 .subscribe-actions {
   display: flex;
   gap: 10px;
@@ -224,13 +441,16 @@ async function copy() {
   align-items: center;
   gap: 6px;
   padding: 10px 16px;
+  font-family: inherit;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.14em;
   color: var(--ink);
+  background: transparent;
   border: 1px solid rgba(0, 0, 0, 0.22);
   border-radius: 999px;
   text-decoration: none;
+  cursor: pointer;
   transition: border-color var(--dur) var(--ease), color var(--dur) var(--ease);
 }
 

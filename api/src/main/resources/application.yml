@@ -4,17 +4,29 @@ spring:
   server:
     port: 8080
 
-  # 数据源：H2 文件数据库（持久化到 api/data/idolcal.mv.db，重启不丢）
+  # 数据源：默认 H2 文件数据库（开发，持久化到 api/data/idolcal.mv.db，重启不丢）；
+  # 生产设置 IDOLCAL_DB_URL / IDOLCAL_DB_DRIVER / IDOLCAL_DB_USERNAME / IDOLCAL_DB_PASSWORD 即切换到 PostgreSQL：
+  #   IDOLCAL_DB_URL=jdbc:postgresql://host:5432/idolcal
+  #   IDOLCAL_DB_DRIVER=org.postgresql.Driver
   datasource:
-    url: jdbc:h2:file:./data/idolcal;AUTO_SERVER=TRUE
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
+    url: ${IDOLCAL_DB_URL:jdbc:h2:file:./data/idolcal;AUTO_SERVER=TRUE}
+    driver-class-name: ${IDOLCAL_DB_DRIVER:org.h2.Driver}
+    username: ${IDOLCAL_DB_USERNAME:sa}
+    password: ${IDOLCAL_DB_PASSWORD:}
 
-  # JPA
+  # Flyway：schema 唯一事实来源（ddl-auto=none 后改表必须写迁移脚本，开发/生产一致）
+  # - 全新库（测试内存库 / 生产 PostgreSQL）：正常执行全部迁移
+  # - 存量开发库（无 flyway_schema_history）：baseline 到版本 0，V1 以 IF NOT EXISTS 跳过已有对象、
+  #   补建缺失表（如旧库没有 push_* 表），后续迁移（V2/V3 列改名等）照常执行
+  flyway:
+    baseline-on-migrate: true
+    baseline-version: 0
+    locations: classpath:db/migration,classpath:com/example/bim/api/db
+
+  # JPA（表结构由 Flyway 管理，Hibernate 不再自动建表/改表）
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     open-in-view: false
     properties:
       hibernate:
@@ -46,7 +58,33 @@ idolcal:
     enabled: ${IDOLCAL_CACHE_ENABLED:true}
   cors:
     origins: ${IDOLCAL_CORS_ORIGINS:http://localhost:5173,http://localhost:5174,http://127.0.0.1:5173,http://127.0.0.1:5174}
+  # 管理后台权限（Admin Login → JWT → ADMIN Role）：
+  # 保护 /api/admin/** 与活动/艺人/回归/教程的写操作；
+  # 管理员账号由启动器创建，密码必须通过 IDOLCAL_ADMIN_PASSWORD 注入（未设置时生成随机密码并打印日志）
+  auth:
+    enabled: ${IDOLCAL_AUTH_ENABLED:true}
+    jwt-secret: ${IDOLCAL_JWT_SECRET:}
+    jwt-ttl-hours: ${IDOLCAL_JWT_TTL_HOURS:24}
+    # 生产强制：true 时未配置 JWT 密钥或密钥 <32 字节直接拒绝启动
+    strict-jwt-secret: ${IDOLCAL_AUTH_STRICT_JWT_SECRET:false}
+    admin-username: ${IDOLCAL_ADMIN_USERNAME:admin}
+    admin-password: ${IDOLCAL_ADMIN_PASSWORD:}
+    # 登录连续失败锁定（按 用户名+IP）：失败次数 / 锁定时长（分钟）
+    login-max-failures: ${IDOLCAL_AUTH_LOGIN_MAX_FAILURES:5}
+    login-lock-minutes: ${IDOLCAL_AUTH_LOGIN_LOCK_MINUTES:15}
+  # 推送（Web Push 发送 + 任务恢复 + 日志增长控制）
+  push:
+    # 同一任务的订阅并发发送数（万人级压测后调整，不要盲抄固定值）
+    send-concurrency: ${IDOLCAL_PUSH_SEND_CONCURRENCY:8}
+    # Fan-out 分批大小：一个调度触发时按此大小分页处理设备任务（默认 500/批，8000 用户 = 16 批）
+    fanout-batch-size: ${IDOLCAL_PUSH_FANOUT_BATCH_SIZE:500}
+    # PROCESSING 超时阈值（毫秒）：卡住超过该时长被重置重跑
+    processing-timeout-ms: ${IDOLCAL_PUSH_PROCESSING_TIMEOUT_MS:600000}
+    # 投递日志保留天数：每日凌晨清理更早日志，控制 push_delivery_logs 增长
+    delivery-log-retention-days: ${IDOLCAL_PUSH_LOG_RETENTION_DAYS:90}
 
 # ---- HTTPS ----
 # 传输加密由部署层完成（推荐 CDN/WAF 或 Nginx 终结 TLS，后端保持 http 内网）；
 # 所有敏感配置（Redis 密码、数据库密码、未来的 JWT Secret）一律走环境变量，禁止写入本文件。
+
+

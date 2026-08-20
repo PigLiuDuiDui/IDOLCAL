@@ -4,6 +4,7 @@ import com.example.bim.api.cache.CacheService;
 import com.example.bim.api.dto.EventDto;
 import com.example.bim.api.entity.Event;
 import com.example.bim.api.repository.EventRepository;
+import com.example.bim.api.util.EventTimes;
 import com.example.bim.api.web.BadRequestException;
 import com.example.bim.api.web.NotFoundException;
 import org.springframework.stereotype.Service;
@@ -125,6 +126,8 @@ public class EventService {
         e.setEndDate(blankToNull(dto.endDate()));
         e.setTime(dto.time());
         e.setTimezone(dto.timezone());
+        // 开始时刻由后端按官方时区计算（提醒调度 / 时区换算统一入口，前端不再各自计算）
+        e.setStartAtUtc(EventTimes.startAtUtc(dto.date(), dto.time(), dto.timezone()));
         e.setTitleEn(i18n(dto.title(), "en"));
         e.setTitleZh(i18n(dto.title(), "zh-CN"));
         e.setTitleKo(i18n(dto.title(), "ko"));

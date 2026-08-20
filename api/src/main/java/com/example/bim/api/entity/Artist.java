@@ -62,7 +62,7 @@ public class Artist {
     @Column(length = 2000)
     private String introKo;
 
-    /** 是否当前展示艺人（日历订阅 / Hero 数据源） */
-    @Column(nullable = false)
+    /** 是否当前展示艺人（日历订阅 / Hero 数据源）；列名 is_current 避开 PostgreSQL 保留字 CURRENT */
+    @Column(nullable = false, name = "is_current")
     private boolean current;
 }

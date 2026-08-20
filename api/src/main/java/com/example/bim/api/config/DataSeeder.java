@@ -18,6 +18,7 @@ import com.example.bim.api.service.ArtistService;
 import com.example.bim.api.service.ComebackService;
 import com.example.bim.api.service.EventService;
 import com.example.bim.api.service.TutorialService;
+import com.example.bim.api.util.EventTimes;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -77,18 +78,34 @@ public class DataSeeder implements CommandLineRunner {
                 && comebackRepo.count() == 0 && tutorialRepo.count() == 0;
         if (!fresh) {
             log.info("[seed] 数据库已有数据，跳过种子导入");
-            return;
+        } else {
+            log.info("[seed] 空库，开始导入种子数据…");
+            seedEvents();
+            seedArtists();
+            seedComebacks();
+            seedTutorials();
+            seedMeta();
+            log.info("[seed] 导入完成：events={} artists={} comebacks={} tutorials={}",
+                    eventRepo.count(), artistRepo.count(), comebackRepo.count(), tutorialRepo.count());
         }
-        log.info("[seed] 空库，开始导入种子数据…");
+        migrateStartAtUtc();
+    }
 
-        seedEvents();
-        seedArtists();
-        seedComebacks();
-        seedTutorials();
-        seedMeta();
-
-        log.info("[seed] 导入完成：events={} artists={} comebacks={} tutorials={}",
-                eventRepo.count(), artistRepo.count(), comebackRepo.count(), tutorialRepo.count());
+    /** 迁移：补算升级前缺失的 start_at_utc（幂等，仅处理该列为空且有时刻的活动） */
+    private void migrateStartAtUtc() {
+        List<Event> missing = eventRepo.findByStartAtUtcIsNull();
+        int fixed = 0;
+        for (Event e : missing) {
+            Long utc = EventTimes.startAtUtc(e.getDate(), e.getTime(), e.getTimezone());
+            if (utc != null) {
+                e.setStartAtUtc(utc);
+                fixed++;
+            }
+        }
+        if (fixed > 0) {
+            eventRepo.saveAll(missing.stream().filter(e -> e.getStartAtUtc() != null).toList());
+            log.info("[seed] 迁移完成：{} 条活动补算 start_at_utc", fixed);
+        }
     }
 
     private void seedEvents() throws Exception {

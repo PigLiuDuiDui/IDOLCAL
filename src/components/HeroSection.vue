@@ -41,14 +41,21 @@
 
         <p class="hero-next-hint">{{ t('hero.clickForDetails') }}</p>
 
-        <button class="hero-subscribe" type="button" @click="subscribeOpen = true">
-          {{ t('subscribe.button') }}
-        </button>
+        <!-- 设置提醒 + 订阅日历：NEXT EVENT 一键直达提醒面板 -->
+        <div class="hero-actions">
+          <button v-if="nextEvent.time" class="hero-remind" type="button" @click="reminderOpen = true">
+            {{ t('hero.remindButton') }}
+          </button>
+          <button class="hero-subscribe" type="button" @click="subscribeOpen = true">
+            {{ t('subscribe.button') }}
+          </button>
+        </div>
       </div>
     </div>
   </section>
 
   <SubscribePanel :open="subscribeOpen" @close="subscribeOpen = false" />
+  <ReminderPanel :open="reminderOpen" :event="nextEvent" @close="reminderOpen = false" />
 </template>
 
 <script setup>
@@ -60,6 +67,7 @@ import { useUiStore } from '../stores/ui'
 import { shortDate, countdownLabel, todayKey } from '../utils/date'
 import { useText } from '../i18n'
 import SubscribePanel from './SubscribePanel.vue'
+import ReminderPanel from './ReminderPanel.vue'
 import EventTime from './EventTime.vue'
 
 const { t } = useI18n()
@@ -70,6 +78,8 @@ const ui = useUiStore()
 
 // 日历订阅弹窗开关
 const subscribeOpen = ref(false)
+// 设置提醒弹窗开关
+const reminderOpen = ref(false)
 
 // 下一个未来活动（含今天）
 const nextEvent = computed(() => {
@@ -269,11 +279,37 @@ const nextEvent = computed(() => {
   text-align: center;
 }
 
+/* 卡片下方操作区：设置提醒（实心）+ 订阅日历（描边） */
+.hero-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.hero-remind {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 18px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  color: #fff;
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+
+.hero-remind:hover {
+  background: #8f2424;
+  border-color: #8f2424;
+}
+
 /* 订阅日历按钮（Hero 下方，描边样式） */
 .hero-subscribe {
-  display: block;
-  width: 100%;
-  margin-top: 18px;
+  flex: 1;
+  min-width: 0;
   padding: 12px 18px;
   font-size: 11px;
   font-weight: 700;

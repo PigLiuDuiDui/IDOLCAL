@@ -105,8 +105,9 @@
 // 主页：Today / This Week / Calendar 三视图
 // Today / Week：移动优先的当日与未来 7 天快捷视图（本地时区分组）
 // Calendar：原有 Hero → 筛选 → 日历 / Upcoming
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRoute, useRouter } from 'vue-router'
 import { useDataStore } from '../stores/data'
 import { useUiStore } from '../stores/ui'
 import { useTimezoneStore } from '../stores/timezone'
@@ -123,6 +124,17 @@ const ui = useUiStore()
 const timezone = useTimezoneStore()
 const data = useDataStore()
 const artist = computed(() => data.currentArtist)
+
+// 通知点击直达 /#/event/{id}：挂载时打开活动详情抽屉并清除直达参数（避免刷新重复打开）
+const route = useRoute()
+const router = useRouter()
+onMounted(() => {
+  const eventId = route.params.id
+  if (eventId) {
+    ui.openEvent(String(eventId))
+    router.replace('/')
+  }
+})
 
 // 视图模式（持久化）
 const VIEW_KEY = 'idolcal-home-view'

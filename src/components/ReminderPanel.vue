@@ -30,9 +30,9 @@
                 :key="opt.id"
                 type="button"
                 role="radio"
-                :aria-checked="current?.offset === opt.id"
+                :aria-checked="selected === opt.id"
                 class="reminder-option"
-                :class="{ active: current?.offset === opt.id, disabled: opt.past }"
+                :class="{ active: selected === opt.id, disabled: opt.past }"
                 :disabled="opt.past"
                 @click="choose(opt.id)"
               >
@@ -40,6 +40,40 @@
                 <span class="ro-label">{{ t(`reminder.options.${opt.id}`) }}</span>
                 <span class="ro-at">{{ t('reminder.at') }} {{ opt.atText }}</span>
               </button>
+
+              <!-- 自定义偏移：输入分钟/小时/天 -->
+              <button
+                type="button"
+                role="radio"
+                :aria-checked="selected === 'custom'"
+                class="reminder-option"
+                :class="{ active: selected === 'custom', disabled: customPast }"
+                :disabled="customPast"
+                @click="choose('custom')"
+              >
+                <span class="ro-radio" aria-hidden="true"></span>
+                <span class="ro-label">{{ t('reminder.options.custom') }}</span>
+                <span v-if="customAtText" class="ro-at">{{ t('reminder.at') }} {{ customAtText }}</span>
+              </button>
+
+              <div v-if="selected === 'custom'" class="reminder-custom">
+                <input
+                  v-model="customNum"
+                  class="reminder-custom-num"
+                  type="number"
+                  min="1"
+                  :max="customMax"
+                  step="1"
+                  inputmode="numeric"
+                  :aria-label="t('reminder.options.custom')"
+                />
+                <select v-model="customUnit" class="reminder-custom-unit" :aria-label="t('reminder.units.hour')">
+                  <option value="minute">{{ t('reminder.units.minute') }}</option>
+                  <option value="hour">{{ t('reminder.units.hour') }}</option>
+                  <option value="day">{{ t('reminder.units.day') }}</option>
+                </select>
+                <p class="reminder-custom-hint">{{ t('reminder.customHint') }}</p>
+              </div>
             </div>
 
             <div class="reminder-foot">
@@ -47,7 +81,7 @@
                 {{ t('reminder.setAt', { at: currentAtText }) }}
               </p>
               <div class="reminder-actions">
-                <button type="button" class="btn btn-accent" @click="confirm">
+                <button type="button" class="btn btn-accent" :disabled="!canConfirm" @click="confirm">
                   {{ current ? t('reminder.update') : t('reminder.confirm') }}
                 </button>
                 <button v-if="current" type="button" class="btn btn-ghost" @click="cancel">
@@ -63,11 +97,19 @@
 </template>
 
 <script setup>
-// 提醒设置弹窗：选择提前量（1天前 / 3小时前 / 1小时前 / 30分钟前 / 开始时）
+// 提醒设置弹窗：选择提前量（1天前 / 3小时前 / 1小时前 / 30分钟前 / 开始时 / 自定义）
 // 提醒时刻基于活动官方时区计算，再转换到用户显示时区展示
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { REMINDER_OFFSETS, getReminderInstant, formatReminderAt, nowInstant } from '../utils/time'
+import {
+  REMINDER_OFFSETS,
+  getReminderInstant,
+  formatReminderAt,
+  nowInstant,
+  minutesToParts,
+  CUSTOM_OFFSET_MIN,
+  CUSTOM_OFFSET_MAX
+} from '../utils/time.js'
 import { useRemindersStore } from '../stores/reminders'
 import { useTimezoneStore } from '../stores/timezone'
 import { useText } from '../i18n'
@@ -87,26 +129,36 @@ const timezone = useTimezoneStore()
 
 const selected = ref(null)
 const confirmed = ref(false)
+// 自定义偏移输入：数值 + 单位（分钟 / 小时 / 天）
+const customNum = ref('1')
+const customUnit = ref('hour')
 
 // 已设置的提醒配置
 const current = computed(() => (props.event ? reminders.reminderOf(props.event.id) : null))
 
-// 打开时同步选中值
+// 打开时同步选中值（含自定义输入回填）
 watch(
   () => props.open,
   (open) => {
     if (open) {
       selected.value = current.value?.offset || null
       confirmed.value = false
+      if (current.value?.offset === 'custom') {
+        const parts = minutesToParts(current.value.offsetMinutes)
+        if (parts) {
+          customNum.value = String(parts.value)
+          customUnit.value = parts.unit
+        }
+      }
     }
   }
 )
 
-// 选项：附带本地化后的提醒时刻（已过去的选项置灰）
+// 预设选项（排除 custom，custom 单独渲染）：附带本地化后的提醒时刻（已过去的选项置灰）
 const options = computed(() => {
   if (!props.event?.time) return []
   const now = nowInstant()
-  return REMINDER_OFFSETS.map((o) => {
+  return REMINDER_OFFSETS.filter((o) => !o.custom).map((o) => {
     const instant = getReminderInstant(props.event, o.id)
     const at = formatReminderAt(props.event, o.id, timezone.displayZone)
     return {
@@ -117,10 +169,45 @@ const options = computed(() => {
   })
 })
 
+// 自定义输入 → 分钟数（范围外返回 null）
+const customMinutes = computed(() => {
+  const n = Number(customNum.value)
+  if (!Number.isInteger(n) || n <= 0) return null
+  const mult = { minute: 1, hour: 60, day: 1440 }[customUnit.value]
+  if (!mult) return null
+  const m = n * mult
+  return m >= CUSTOM_OFFSET_MIN && m <= CUSTOM_OFFSET_MAX ? m : null
+})
+
+/** 单位对应的输入上限（保证不超过 30 天） */
+const customMax = computed(() => {
+  const mult = { minute: 1, hour: 60, day: 1440 }[customUnit.value]
+  return Math.floor(CUSTOM_OFFSET_MAX / mult)
+})
+
+const customPast = computed(() => {
+  if (!props.event?.time) return true
+  const now = nowInstant()
+  const start = getReminderInstant(props.event, 'start')
+  return Boolean(start && Number(start.epochMilliseconds) < Number(now.epochMilliseconds))
+})
+
+const customAtText = computed(() => {
+  if (!props.event?.time || !customMinutes.value) return ''
+  const at = formatReminderAt(props.event, 'custom', timezone.displayZone, customMinutes.value)
+  return at ? `${shortDate(at.date)} · ${at.time} ${at.tz}` : ''
+})
+
 const currentAtText = computed(() => {
   if (!current.value) return ''
-  const at = formatReminderAt(props.event, current.value.offset, timezone.displayZone)
+  const at = formatReminderAt(props.event, current.value.offset, timezone.displayZone, current.value.offsetMinutes)
   return at ? `${shortDate(at.date)} · ${at.time} ${at.tz}` : ''
+})
+
+// 确认按钮可用性：custom 需输入有效分钟数
+const canConfirm = computed(() => {
+  if (!selected.value) return false
+  return selected.value === 'custom' ? Boolean(customMinutes.value) : true
 })
 
 function choose(id) {
@@ -128,8 +215,12 @@ function choose(id) {
 }
 
 function confirm() {
-  if (!selected.value || !props.event) return
-  reminders.setReminder(props.event.id, selected.value)
+  if (!props.event || !canConfirm.value) return
+  if (selected.value === 'custom') {
+    reminders.setReminder(props.event.id, 'custom', customMinutes.value)
+  } else {
+    reminders.setReminder(props.event.id, selected.value)
+  }
   confirmed.value = true
   setTimeout(close, 600)
 }
@@ -332,6 +423,54 @@ function close() {
 
 .reminder-option.active .ro-at {
   color: var(--accent-ink);
+}
+
+/* 自定义偏移输入行 */
+.reminder-custom {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+.reminder-custom-num {
+  width: 88px;
+  min-height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: calc(var(--radius-sm) - 2px);
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.reminder-custom-num:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.reminder-custom-unit {
+  min-height: 36px;
+  padding: 0 8px;
+  border: 1px solid var(--line-strong);
+  border-radius: calc(var(--radius-sm) - 2px);
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.reminder-custom-hint {
+  width: 100%;
+  margin: 2px 0 0;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--ink-faint);
 }
 
 /* 底部 */

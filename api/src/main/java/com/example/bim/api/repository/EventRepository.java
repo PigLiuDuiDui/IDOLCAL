@@ -9,5 +9,8 @@ public interface EventRepository extends JpaRepository<Event, String> {
 
     List<Event> findAllByOrderByDateAscTimeAsc();
 
+    /** 启动迁移用：补算升级前缺失的 start_at_utc */
+    List<Event> findByStartAtUtcIsNull();
+
     boolean existsByArtist(String artistId);
 }
