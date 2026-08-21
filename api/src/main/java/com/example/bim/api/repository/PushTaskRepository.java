@@ -2,6 +2,8 @@ package com.example.bim.api.repository;
 
 import com.example.bim.api.entity.PushTask;
 import com.example.bim.api.Enum.PushTaskStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -23,6 +25,9 @@ public interface PushTaskRepository extends JpaRepository<PushTask, Long> {
     List<PushTask> findByStatusAndProcessedAtLessThanEqual(PushTaskStatus status, long cutoff);
 
     List<PushTask> findByDeviceId(String deviceId);
+
+    /** 设备任务分页（后台：设备详情 / 任务明细查询） */
+    Page<PushTask> findByDeviceId(String deviceId, Pageable pageable);
 
     Optional<PushTask> findFirstByDeviceIdAndEventIdAndStatusIn(String deviceId, String eventId, List<PushTaskStatus> statuses);
 
@@ -69,4 +74,23 @@ public interface PushTaskRepository extends JpaRepository<PushTask, Long> {
 
     /** 调度下处于指定状态的任务数（孤儿调度判定 / 调度收尾 / 监控收件人数） */
     long countByScheduleIdAndStatusIn(Long scheduleId, Collection<PushTaskStatus> statuses);
+
+    // ---- 后台管理查询（只读） ----
+
+    /** 调度下任务状态分布（后台：调度进度聚合） */
+    @Query("select t.status, count(t) from PushTask t where t.scheduleId = :scheduleId group by t.status")
+    List<Object[]> countByScheduleIdGrouped(@Param("scheduleId") Long scheduleId);
+
+    /** 全量 (调度, 状态) 分布（后台：调度列表聚合，一次查询避免 N+1） */
+    @Query("select t.scheduleId, t.status, count(t) from PushTask t group by t.scheduleId, t.status")
+    List<Object[]> countGroupedByScheduleAndStatus();
+
+    /** 调度下任务分页（后台：任务明细） */
+    Page<PushTask> findByScheduleId(Long scheduleId, Pageable pageable);
+
+    /** 调度下按状态任务分页 */
+    Page<PushTask> findByScheduleIdAndStatus(Long scheduleId, PushTaskStatus status, Pageable pageable);
+
+    /** 按状态分页（后台：任务列表） */
+    Page<PushTask> findByStatus(PushTaskStatus status, Pageable pageable);
 }

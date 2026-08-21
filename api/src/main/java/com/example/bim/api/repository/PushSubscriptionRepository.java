@@ -1,7 +1,10 @@
 package com.example.bim.api.repository;
 
 import com.example.bim.api.entity.PushSubscription;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.Collection;
 import java.util.List;
@@ -17,4 +20,11 @@ public interface PushSubscriptionRepository extends JpaRepository<PushSubscripti
     List<PushSubscription> findByDeviceIdIn(Collection<String> deviceIds);
 
     void deleteByDeviceId(String deviceId);
+
+    /** 设备订阅分页（后台：订阅管理） */
+    Page<PushSubscription> findByDeviceId(String deviceId, Pageable pageable);
+
+    /** 启用推送的设备数（后台：Push Enabled，按设备去重） */
+    @Query("select count(distinct s.deviceId) from PushSubscription s")
+    long countDistinctDeviceId();
 }

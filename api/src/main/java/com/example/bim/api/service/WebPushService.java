@@ -30,12 +30,14 @@ import java.security.GeneralSecurityException;
 import java.security.Security;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
@@ -133,13 +135,10 @@ public class WebPushService {
                 .setMaxConnPerRoute(n)
                 .setMaxConnTotal(n)
                 .build();
-        this.senderPool = Executors.newFixedThreadPool(n, new ThreadFactory() {
-            @Override
-            public Thread newThread(Runnable r) {
-                Thread t = new Thread(r, "webpush-sender");
-                t.setDaemon(true);
-                return t;
-            }
+        this.senderPool = Executors.newFixedThreadPool(n, r -> {
+            Thread t = new Thread(r, "webpush-sender");
+            t.setDaemon(true);
+            return t;
         });
         log.info("[push] 发送线程池已初始化：并发 {}（单条超时 {}s）", n, SEND_TIMEOUT_MS / 1000);
     }
@@ -168,6 +167,20 @@ public class WebPushService {
     /** 管理端更新 meta 后调用：重载类型标签缓存 */
     public void invalidateTypeLabels() {
         this.typeLabelCache = typeLabelsFromDb();
+    }
+
+    /** 发送线程池状态（后台系统监控：Active / Pool Size / Queue / Completed） */
+    public Map<String, Object> senderPoolStats() {
+        if (senderPool instanceof ThreadPoolExecutor tpe) {
+            Map<String, Object> m = new LinkedHashMap<>();
+            m.put("active", tpe.getActiveCount());
+            m.put("poolSize", tpe.getPoolSize());
+            m.put("corePoolSize", tpe.getCorePoolSize());
+            m.put("queueSize", tpe.getQueue().size());
+            m.put("completed", tpe.getCompletedTaskCount());
+            return m;
+        }
+        return Map.of();
     }
 
     // ---- 订阅管理 ----
@@ -449,9 +462,9 @@ public class WebPushService {
             JsonNode arr = JSON.readTree(m.getMetaValue());
             for (JsonNode node : arr) {
                 JsonNode label = node.get("label");
-                String zh = label != null && label.get("zh-CN") != null ? label.get("zh-CN").asText() : null;
-                if (zh == null && label != null && label.get("en") != null) zh = label.get("en").asText();
-                if (zh != null) map.put(node.get("id").asText(), zh);
+                String zh = label != null && label.get("zh-CN") != null ? label.get("zh-CN").asString() : null;
+                if (zh == null && label != null && label.get("en") != null) zh = label.get("en").asString();
+                if (zh != null) map.put(node.get("id").asString(), zh);
             }
         } catch (Exception ex) {
             log.warn("[push] 类型标签读取失败：{}", ex.getMessage());

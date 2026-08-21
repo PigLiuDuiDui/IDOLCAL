@@ -1,0 +1,1191 @@
+# IdolCal 后端管理系统 UI 改造提示词
+
+请基于当前 IdolCal 项目已有的前端技术栈和后端 API，实现一套完整的 **IdolCal 管理后台 UI**。
+
+不要重新设计成一个普通的 Admin Template，也不要做成传统企业管理系统。
+
+整体定位：
+
+> **现代 SaaS Dashboard + 偶像日历产品后台 + 轻量数据监控中心**
+
+后台主要服务于管理员，因此需要专业、高效、清晰，但应该与 IdolCal 前台保持视觉上的品牌关联。
+
+---
+
+# 一、整体设计方向
+
+关键词：
+
+- Modern SaaS
+- Clean
+- Premium
+- Minimal
+- Soft UI
+- Data Dashboard
+- Idol / Calendar
+- Professional
+- Lightweight
+- Responsive
+
+视觉要求：
+
+- 不要传统蓝色 Java 管理后台
+- 不要 Element Plus 默认后台模板感
+- 不要大面积渐变
+- 不要玻璃拟态过度
+- 不要大量卡片堆叠
+- 不要卡通化
+- 不要过度粉色
+- 不要复杂动画
+- 不要为了好看牺牲数据可读性
+
+整体应该让人感觉：
+
+> “这是一个真正上线运营的 SaaS 产品后台，而不是开发人员临时做的 CRUD 页面。”
+
+---
+
+# 二、整体布局
+
+采用经典的：
+
+```text
+┌─────────────────────────────────────────────────────┐
+│ Logo / IdolCal        搜索        通知   管理员     │
+├──────────────┬──────────────────────────────────────┤
+│              │                                      │
+│ Dashboard    │                                      │
+│              │                                      │
+│ 用户管理     │              主内容区                │
+│              │                                      │
+│ 偶像管理     │                                      │
+│              │                                      │
+│ 日历事件     │                                      │
+│              │                                      │
+│ 推送管理     │                                      │
+│              │                                      │
+│ 系统监控     │                                      │
+│              │                                      │
+│ 系统设置     │                                      │
+│              │                                      │
+└──────────────┴──────────────────────────────────────┘
+```
+
+桌面端：
+
+- 左侧固定 Sidebar
+- 顶部 Header
+- 内容区域自适应
+- 最大内容宽度建议 1440px
+- 页面左右留白充足
+- 不要让内容贴边
+
+移动端：
+
+- Sidebar 自动折叠
+- 使用 Drawer / Bottom navigation
+- 表格支持横向滚动
+- Dashboard 卡片自动换行
+- 保证管理员可以手机查看关键数据
+
+---
+
+# 三、Sidebar
+
+Sidebar 不要太宽。
+
+建议：
+
+```text
+宽度：220px ~ 240px
+```
+
+顶部：
+
+```text
+IdolCal
+Admin
+```
+
+可以使用 IdolCal Logo。
+
+菜单：
+
+### Overview
+
+- Dashboard
+
+### Content
+
+- 偶像管理
+- 日历事件
+- 分类管理
+
+### Users
+
+- 用户管理
+- 订阅管理
+- Push 设备
+
+### Push
+
+- 推送任务
+- 推送记录
+- 失效设备
+
+### System
+
+- 系统监控
+- 操作日志
+- 系统设置
+
+---
+
+Sidebar 设计：
+
+- 背景使用接近白色的浅色
+- 右侧使用非常淡的 border
+- 当前菜单使用品牌色浅色背景
+- 当前菜单左侧可以使用 3px 小色条
+- 图标保持统一线性风格
+- 图标尺寸 18px 左右
+- 菜单高度约 40~44px
+- 不要使用巨大图标
+
+底部：
+
+```text
+● System Online
+
+管理员名称
+Admin
+```
+
+---
+
+# 四、顶部 Header
+
+Header 高度：
+
+```text
+64px
+```
+
+左侧：
+
+```text
+当前页面标题
+Breadcrumb
+```
+
+右侧：
+
+```text
+搜索
+通知
+帮助
+管理员头像
+```
+
+通知按钮可以显示：
+
+```text
+3
+```
+
+如果系统存在异常：
+
+```text
+⚠ 2 个 Push 任务需要关注
+```
+
+---
+
+# 五、Dashboard
+
+Dashboard 是整个后台最重要的页面。
+
+不要做成简单的：
+
+```text
+用户数
+事件数
+推送数
+```
+
+四个卡片。
+
+应该做成真正的运营 Dashboard。
+
+---
+
+## 第一行：核心指标
+
+4~5 个 KPI：
+
+```text
+Total Users
+12,842
+
++8.4%
+vs last 7 days
+```
+
+```text
+Active Users
+8,291
+
++5.2%
+```
+
+```text
+Calendar Events
+24,381
+
++12.1%
+```
+
+```text
+Push Success Rate
+99.2%
+
++0.4%
+```
+
+```text
+Push Devices
+18,421
+
++6.7%
+```
+
+卡片不要太高。
+
+数字要明显。
+
+趋势数字使用小型趋势图或者 Sparkline。
+
+---
+
+# 六、Dashboard 图表
+
+第二行：
+
+左侧：
+
+## User Activity
+
+使用折线图：
+
+```text
+7 days
+30 days
+90 days
+```
+
+显示：
+
+- Active Users
+- New Users
+- Push Subscribers
+
+右侧：
+
+## Push Performance
+
+显示：
+
+```text
+Sent
+Success
+Failed
+Expired
+```
+
+使用：
+
+- Donut Chart
+或者
+- Stacked Bar Chart
+
+不要使用 3D 图表。
+
+---
+
+# 七、Push 实时状态
+
+Dashboard 下方增加：
+
+## Push Task Monitor
+
+展示当前正在执行的任务。
+
+例如：
+
+```text
+Task                     Status       Progress
+
+Birthday Reminder       Sending      ████████░░ 82%
+
+Tomorrow Events         Completed    ██████████ 100%
+
+Weekly Digest            Pending      ░░░░░░░░░░ 0%
+```
+
+状态：
+
+```text
+PROCESSING
+PENDING
+SUCCESS
+FAILED
+RETRY
+```
+
+使用状态 Badge。
+
+---
+
+# 八、最近活动
+
+右侧或者底部：
+
+## Recent Activity
+
+例如：
+
+```text
+09:32
+Push task completed
+8,000 devices
+
+09:28
+New idol added
+ENHYPEN
+
+09:14
+User registered
+user_18291
+
+08:56
+Push device expired
+device_xxx
+```
+
+时间轴保持简洁。
+
+---
+
+# 九、偶像管理页面
+
+页面标题：
+
+```text
+Idols
+```
+
+顶部：
+
+```text
+搜索偶像
+分类
+状态
++ Add Idol
+```
+
+表格：
+
+```text
+Avatar
+Name
+Group
+Birthday
+Events
+Followers
+Status
+Updated
+Actions
+```
+
+例如：
+
+```text
+[头像] Heeseung
+       ENHYPEN
+```
+
+Status：
+
+```text
+Active
+Inactive
+```
+
+Actions：
+
+```text
+View
+Edit
+Delete
+```
+
+删除必须二次确认。
+
+---
+
+# 十、日历事件管理
+
+页面：
+
+```text
+Calendar Events
+```
+
+支持：
+
+```text
+List
+Calendar
+```
+
+顶部：
+
+```text
+日期范围
+偶像
+事件类型
+状态
+搜索
++ Create Event
+```
+
+事件类型：
+
+```text
+Birthday
+Schedule
+Comeback
+Release
+Concert
+Anniversary
+Other
+```
+
+列表显示：
+
+```text
+Date
+Time
+Event
+Idol
+Type
+Push
+Status
+Actions
+```
+
+---
+
+# 十一、用户管理
+
+页面：
+
+```text
+Users
+```
+
+顶部统计：
+
+```text
+Total Users
+Active Today
+New Users
+Push Enabled
+```
+
+表格：
+
+```text
+User
+Registered
+Last Active
+Favorite Idols
+Push Devices
+Status
+Actions
+```
+
+支持：
+
+- 搜索
+- 用户 ID
+- 注册时间
+- 状态
+- 分页
+
+不要一次性加载全部用户。
+
+---
+
+# 十二、Push 管理
+
+这是整个后台最重要的专业页面之一。
+
+页面：
+
+```text
+Push Center
+```
+
+顶部 KPI：
+
+```text
+Today's Push
+Success Rate
+Failed
+Expired
+Pending
+```
+
+下面：
+
+## Push Tasks
+
+表格：
+
+```text
+Task ID
+Task Type
+Target
+Scheduled Time
+Status
+Progress
+Success
+Failed
+Created
+Actions
+```
+
+例如：
+
+```text
+Birthday Reminder
+8,000 devices
+09:00
+
+PROCESSING
+
+████████░░ 82%
+
+6,560 / 8,000
+```
+
+---
+
+# 十三、Push Task Detail
+
+点击任务进入详情。
+
+顶部：
+
+```text
+Birthday Reminder
+
+SUCCESS
+
+Started
+09:00:01
+
+Finished
+09:00:59
+
+Duration
+58.2s
+```
+
+下面：
+
+```text
+Target Devices      8,000
+Success             7,920
+Failed              0
+Expired             80
+```
+
+增加：
+
+## Delivery Timeline
+
+```text
+09:00:01 Task started
+
+09:00:02 Batch #1 started
+
+09:00:05 Batch #1 completed
+
+09:00:06 Batch #2 started
+
+...
+
+09:00:59 Task completed
+```
+
+---
+
+# 十四、Push 设备管理
+
+页面：
+
+```text
+Push Devices
+```
+
+表格：
+
+```text
+Device ID
+User
+Platform
+Browser
+Last Active
+Subscription
+Status
+Updated
+```
+
+状态：
+
+```text
+ACTIVE
+EXPIRED
+INVALID
+```
+
+重点显示：
+
+```text
+Expired devices
+```
+
+可以提供：
+
+```text
+Clean Expired Devices
+```
+
+按钮。
+
+执行前必须二次确认。
+
+---
+
+# 十五、系统监控
+
+页面：
+
+```text
+System Monitor
+```
+
+显示：
+
+```text
+CPU
+Memory
+JVM Heap
+Threads
+Database
+Push Worker
+Quartz
+```
+
+例如：
+
+```text
+JVM Memory
+
+282 MB / 1 GB
+
+██████░░░░ 28%
+```
+
+线程池：
+
+```text
+Push Worker
+
+Active       8
+Pool Size    8
+Queue        0
+Completed    8,420
+```
+
+数据库：
+
+```text
+Database
+Connected
+
+Active Connections
+4 / 20
+```
+
+Quartz：
+
+```text
+Scheduler
+RUNNING
+
+Jobs
+12
+
+Next Trigger
+09:30:00
+```
+
+---
+
+# 十六、系统健康状态
+
+Dashboard 顶部增加一个：
+
+```text
+System Status
+● All Systems Operational
+```
+
+如果异常：
+
+```text
+⚠ Attention Required
+
+Push Worker degraded
+```
+
+颜色：
+
+- 正常：绿色
+- 警告：橙色
+- 严重：红色
+
+不要让页面到处都是颜色。
+
+只有真正有状态意义的地方使用颜色。
+
+---
+
+# 十七、操作日志
+
+页面：
+
+```text
+Audit Logs
+```
+
+显示：
+
+```text
+Time
+Admin
+Action
+Resource
+IP
+Result
+```
+
+例如：
+
+```text
+09:21
+admin
+DELETE
+PushDevice
+SUCCESS
+```
+
+支持：
+
+- 时间筛选
+- 管理员筛选
+- 操作类型
+- 搜索
+
+---
+
+# 十八、系统设置
+
+设置页面采用 Tab：
+
+```text
+General
+Push
+Scheduler
+Security
+Database
+```
+
+例如：
+
+## Push
+
+```text
+Concurrency
+8
+
+Batch Size
+500
+
+Request Timeout
+30s
+```
+
+注意：
+
+这些配置如果当前系统不支持运行时修改，就不要伪装成可以编辑。
+
+可以显示：
+
+```text
+Configured via Environment
+```
+
+避免 UI 和真实后端能力不一致。
+
+---
+
+# 十九、颜色体系
+
+不要整个后台使用粉色。
+
+建议使用：
+
+### Primary
+
+IdolCal 品牌色。
+
+可以根据当前前台项目已有主色自动提取。
+
+### Background
+
+```text
+#F8F9FB
+```
+
+### Card
+
+```text
+#FFFFFF
+```
+
+### Text
+
+主文字：
+
+```text
+#1F2937
+```
+
+次文字：
+
+```text
+#6B7280
+```
+
+Border：
+
+```text
+#E5E7EB
+```
+
+状态色：
+
+```text
+Success → Green
+Warning → Amber
+Error   → Red
+Info    → Blue
+```
+
+整体保持低饱和度。
+
+---
+
+# 二十、字体
+
+优先：
+
+```text
+Inter
+Noto Sans SC
+```
+
+中文使用：
+
+```text
+Noto Sans SC
+```
+
+数字可以稍微加粗。
+
+Dashboard KPI 数字：
+
+```text
+28px ~ 36px
+```
+
+普通正文：
+
+```text
+13px ~ 14px
+```
+
+页面标题：
+
+```text
+20px ~ 24px
+```
+
+不要大量使用超大字体。
+
+---
+
+# 二十一、圆角
+
+统一：
+
+```text
+Card: 12px
+Button: 8px
+Input: 8px
+Badge: 6px
+Avatar: 50%
+```
+
+不要所有东西都做成胶囊。
+
+---
+
+# 二十二、阴影
+
+极轻。
+
+例如：
+
+```text
+0 1px 3px rgba(...)
+```
+
+不要使用明显悬浮阴影。
+
+整体更接近：
+
+```text
+Linear
+Vercel
+Stripe
+Notion
+GitHub
+```
+
+这种现代 SaaS 的感觉。
+
+---
+
+# 二十三、响应式
+
+必须同时支持：
+
+### Desktop
+
+1440 × 900
+
+### Laptop
+
+1280 × 800
+
+### Tablet
+
+768px
+
+### Mobile
+
+390px
+
+桌面端优先。
+
+移动端不是简单缩小，而是重新排列。
+
+例如 Dashboard：
+
+```text
+Desktop:
+[ KPI ][ KPI ][ KPI ][ KPI ]
+
+Mobile:
+[ KPI ]
+[ KPI ]
+[ KPI ]
+[ KPI ]
+```
+
+表格在移动端：
+
+```text
+横向滚动
+```
+
+不要把十几列强行压缩。
+
+---
+
+# 二十四、交互要求
+
+所有危险操作：
+
+```text
+Delete
+Disable
+Clean
+Retry
+Cancel
+```
+
+必须：
+
+```text
+Confirm Dialog
+```
+
+所有异步操作：
+
+```text
+Loading
+Success
+Error
+```
+
+必须有明确反馈。
+
+列表：
+
+- Loading Skeleton
+- Empty State
+- Error State
+- Pagination
+
+不要出现白屏。
+
+---
+
+# 二十五、Empty State
+
+不要简单写：
+
+```text
+暂无数据
+```
+
+应该：
+
+```text
+No push tasks yet
+
+Push tasks will appear here once scheduled.
+
+[Create Push Task]
+```
+
+但如果当前页面不允许创建，则只显示说明。
+
+---
+
+# 二十六、视觉重点
+
+后台最重要的是：
+
+```text
+信息层级
+↓
+数据可读性
+↓
+状态识别
+↓
+操作效率
+↓
+视觉美观
+```
+
+不要反过来。
+
+尤其是 Push 管理页面：
+
+管理员应该在 2~3 秒内看懂：
+
+```text
+任务是否正常
+发送了多少
+成功多少
+失败多少
+是否正在发送
+是否出现异常
+```
+
+---
+
+# 二十七、不要做的事情
+
+禁止：
+
+- Element Plus 默认 Admin UI
+- 大面积渐变
+- 过度玻璃效果
+- 过度圆角
+- 大量彩色卡片
+- 卡通插画
+- 巨大 Dashboard 数字
+- 复杂 3D 图表
+- 无意义动画
+- 到处使用 Emoji
+- 大面积粉色
+- 把后台做成 IdolCal 前台页面
+- 伪造不存在的后端功能
+- 修改后端 API 只为了适配 UI
+
+---
+
+# 二十八、最终产品感觉
+
+最终效果应该接近：
+
+```text
+        IdolCal Admin
+
+专业 SaaS 后台
+        +
+偶像日历数据中心
+        +
+Push 运营监控
+```
+
+用户打开后台之后，第一感觉应该是：
+
+> “这是一个已经上线运营的成熟产品后台。”
+
+而不是：
+
+> “这是一个 Spring Boot + Vue 写出来的管理页面。”
+
+请优先保证：
+
+1. Dashboard
+2. Push Center
+3. Push Task Detail
+4. Users
+5. Idols
+6. Calendar Events
+7. Push Devices
+8. System Monitor
+
+这 8 个页面的完成度。
+
+在现有项目基础上直接实现，**优先复用现有 API、数据结构、组件和路由，不要为了 UI 重写后端逻辑。**

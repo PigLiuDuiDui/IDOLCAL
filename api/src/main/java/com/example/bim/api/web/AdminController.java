@@ -8,6 +8,7 @@ import com.example.bim.api.Enum.PushTaskStatus;
 import com.example.bim.api.repository.PushDeliveryLogRepository;
 import com.example.bim.api.repository.PushScheduleRepository;
 import com.example.bim.api.repository.PushTaskRepository;
+import com.example.bim.api.service.AdminService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,6 +28,7 @@ import java.util.Map;
 /**
  * 管理后台接口（需 Bearer Token，由 AuthInterceptor 保护）：
  * POST /api/admin/login               登录（返回 JWT；连续失败锁定 + 限流）
+ * GET  /api/admin/overview            Dashboard 总览聚合（KPI / 趋势 / 最近活动）
  * GET  /api/admin/push/stats          推送投递统计（今日发送 / 成功 / 失败 / 失效）
  * GET  /api/admin/push/tasks/stats    调度 + 任务双状态分布（PENDING / PROCESSING / SUCCESS / FAILED / RETRY）
  * GET  /api/admin/push/upcoming       未来 24h 即将触发的调度（每条附 Fan-out 收件人数）
@@ -38,13 +40,15 @@ public class AdminController {
     private static final long UPCOMING_WINDOW_MS = 24 * 3_600_000L;
 
     private final AuthService auth;
+    private final AdminService admin;
     private final PushDeliveryLogRepository deliveryLogs;
     private final PushScheduleRepository schedules;
     private final PushTaskRepository pushTasks;
 
-    public AdminController(AuthService auth, PushDeliveryLogRepository deliveryLogs,
+    public AdminController(AuthService auth, AdminService admin, PushDeliveryLogRepository deliveryLogs,
                            PushScheduleRepository schedules, PushTaskRepository pushTasks) {
         this.auth = auth;
+        this.admin = admin;
         this.deliveryLogs = deliveryLogs;
         this.schedules = schedules;
         this.pushTasks = pushTasks;
@@ -54,6 +58,13 @@ public class AdminController {
     public Map<String, String> login(@Valid @RequestBody AdminLoginRequest req, HttpServletRequest http) {
         String token = auth.login(req.username(), req.password(), http.getRemoteAddr());
         return Map.of("token", token, "role", "ADMIN");
+    }
+
+    /** Dashboard 总览聚合：用户 / 内容 / 推送 KPI + 7 天趋势 + 最近活动 */
+    @GetMapping("/overview")
+    @AdminOnly
+    public Map<String, Object> overview() {
+        return admin.overview();
     }
 
     @GetMapping("/push/stats")

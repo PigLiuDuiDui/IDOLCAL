@@ -2,6 +2,8 @@ package com.example.bim.api.repository;
 
 import com.example.bim.api.entity.PushSchedule;
 import com.example.bim.api.Enum.PushTaskStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -46,4 +48,9 @@ public interface PushScheduleRepository extends JpaRepository<PushSchedule, Long
     @Modifying
     @Query("update PushSchedule s set s.status = :to where s.id = :id and s.status = :from")
     int resetStatus(@Param("id") long id, @Param("from") PushTaskStatus from, @Param("to") PushTaskStatus to);
+
+    // ---- 后台管理查询（只读） ----
+
+    /** 按状态分页（后台：调度列表） */
+    Page<PushSchedule> findByStatus(PushTaskStatus status, Pageable pageable);
 }

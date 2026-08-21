@@ -1,6 +1,7 @@
 <template>
-  <div class="app-shell">
-    <SiteHeader />
+  <!-- 管理后台（/admin/**）使用独立布局，隐藏主站顶部/底部导航与全局抽屉 -->
+  <div class="app-shell" :class="{ 'is-admin': isAdmin }">
+    <SiteHeader v-if="!isAdmin" />
 
     <main class="app-main">
       <RouterView v-slot="{ Component }">
@@ -10,18 +11,23 @@
       </RouterView>
     </main>
 
-    <BottomNav />
-    <EventDetailDrawer />
+    <BottomNav v-if="!isAdmin" />
+    <EventDetailDrawer v-if="!isAdmin" />
   </div>
 </template>
 
 <script setup>
 // 根组件：应用骨架 + 顶部导航 + 移动底部导航 + 全局活动详情面板
-import { onMounted } from 'vue'
+// admin 路由下全部隐藏（AdminLayout 提供独立全屏壳）
+import { computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import SiteHeader from './components/SiteHeader.vue'
 import BottomNav from './components/BottomNav.vue'
 import EventDetailDrawer from './components/EventDetailDrawer.vue'
 import { useDataStore } from './stores/data'
+
+const route = useRoute()
+const isAdmin = computed(() => route.path.startsWith('/admin'))
 
 const data = useDataStore()
 
@@ -44,6 +50,10 @@ onMounted(() => data.loadAll())
 @media (max-width: 900px) {
   .app-main {
     padding-bottom: 64px;
+  }
+  /* admin 无底部导航，去掉占位 */
+  .app-shell.is-admin .app-main {
+    padding-bottom: 0;
   }
 }
 </style>
